@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>OakLand</title>
+        <link rel="stylesheet" href="./styles/style.css">
+    </head>
+    <body>
+        <div id="root">
+            <div class="app-container">
+                <div>
+                    <h1>OakLand</h1>
+                </div>
+                <div class="form-container">
+                    <h2>Editor de Texto</h2>
+                    <h2>Consola</h2>
+                    <textarea id="editorTextArea" rows="20" cols="40"></textarea>
+                    <textarea id="consoleTextArea" rows="20" cols="40" readonly></textarea>
+                    <div>
+                        <button id="btnInterpretar  ">
+                            <span class="button_top">Interpretar</span>
+                        </button>
+                    </div>
+                    <pre id="ast"></pre>
+                </div>
+            </div>
+        </div>
+
+        <script src="./js/index.js"></script>
+    </body>
+</html>
