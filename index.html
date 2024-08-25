@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
     <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>OakLand</title>
         <link rel="stylesheet" href="./styles/style.css">
     </head>
     <body>
         <div id="root">
             <div class="app-container">
+                
                 <div>
                     <h1>OakLand</h1>
                 </div>
                 <div class="form-container">
                     <h2>Editor de Texto</h2>
+                    <div id="editor" style="height: 40vh; width: 100%;"></div>
+                    <br>
                     <h2>Consola</h2>
-                    <textarea id="editorTextArea" rows="20" cols="40"></textarea>
-                    <textarea id="consoleTextArea" rows="20" cols="40" readonly></textarea>
+                    <textarea id="consoleTextArea" readonly></textarea>
                     <div>
-                        <button id="btnInterpretar  ">
+                        <button id="btnInterpretar">
                             <span class="button_top">Interpretar</span>
                         </button>
                     </div>
@@ -26,7 +28,6 @@
                 </div>
             </div>
         </div>
-
-        <script src="./js/index.js"></script>
+        <script type="module" src="./js/index.js"></script>
     </body>
 </html>

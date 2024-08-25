@@ -1,0 +1,18 @@
+{
+  "tipo": "Suma",
+  "num1": {
+    "tipo": "Numero",
+    "valor": 1
+  },
+  "num2": {
+    "tipo": "Multiplicacion",
+    "num1": {
+      "tipo": "Numero",
+      "valor": 1
+    },
+    "num2": {
+      "tipo": "Numero",
+      "valor": 4
+    }
+  }
+}
