@@ -16,23 +16,38 @@ const editor = monaco.editor.create(
 
 const recorrer = (nodo) => {
     if (nodo.tipo === 'Numero') return nodo.valor;
+    if (nodo.tipo === 'Parentesis') return recorrer(nodo.exp);
 
-    const num1 = recorrer(nodo.num1)
-    const num2 = recorrer(nodo.num2)
+    const num1 = (nodo.izq && recorrer(nodo.izq)) || 0;
+    const num2 = recorrer(nodo.der)
 
     switch (nodo.tipo) {
-        case 'Suma':
+        case '+':
             return num1 + num2;
-        case 'Multiplicacion':
+        case '-':
+            return num1 - num2;
+        case '*':
             return num1 * num2;
+        case '/':
+            return num1 / num2;
     }
 }
 
 btn.addEventListener('click', () => {
+    // Obtenemos el código fuente del editor
     const codigoFuente = editor.getValue();
+
+    // Parseamos el código fuente con el analizador generado por PeggyJS
+    // Parse genera un AST en forma de JSON
     const arbol = parse(codigoFuente);
-    ast.innerHTML = JSON.stringify(arbol, null, 2);
+
+    // Mostramos el árbol en el textarea
+    ast.innerHTML = JSON.stringify(arbol, null, 4);
+
+    // Recorremos el árbol
     const resultado = recorrer(arbol);
+
+    // Mostramos el resultado en el textarea
     output.value = resultado;
 });
 
