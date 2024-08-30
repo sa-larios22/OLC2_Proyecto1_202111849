@@ -1,6 +1,7 @@
 import * as monaco from 'https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/+esm'
 
 import { parse } from '../analyzer/analyzer.js';
+import { InterpreterVisitor } from '../analyzer/ast/interprete.js';
 
 const btn = document.getElementById('btnInterpretar');
 const output = document.getElementById('consoleTextArea');
@@ -14,41 +15,25 @@ const editor = monaco.editor.create(
     },
 );
 
-const recorrer = (nodo) => {
-    if (nodo.tipo === 'Numero') return nodo.valor;
-    if (nodo.tipo === 'Parentesis') return recorrer(nodo.exp);
-
-    const num1 = (nodo.izq && recorrer(nodo.izq)) || 0;
-    const num2 = recorrer(nodo.der)
-
-    switch (nodo.tipo) {
-        case '+':
-            return num1 + num2;
-        case '-':
-            return num1 - num2;
-        case '*':
-            return num1 * num2;
-        case '/':
-            return num1 / num2;
-    }
-}
-
 btn.addEventListener('click', () => {
     // Obtenemos el código fuente del editor
     const codigoFuente = editor.getValue();
 
     // Parseamos el código fuente con el analizador generado por PeggyJS
     // Parse genera un AST en forma de JSON
-    const arbol = parse(codigoFuente);
+    const sentencias = parse(codigoFuente);
 
     // Mostramos el árbol en el textarea
-    ast.innerHTML = JSON.stringify(arbol, null, 4);
+    ast.innerHTML = JSON.stringify(sentencias, null, 4);
 
-    // Recorremos el árbol
-    const resultado = recorrer(arbol);
+    // Creamos una instancia del visitante de interpretación
+    const interprete = new InterpreterVisitor();
 
-    // Mostramos el resultado en el textarea
-    output.value = resultado;
+    console.log( { sentencias } );
+
+    sentencias.forEach(sentencia => sentencia.accept(interprete))
+
+    output.innerHTML = interprete.salida;
 });
 
 window.addEventListener('resize', () => {

@@ -1,5 +1,6 @@
 # Manual Técnico
 
+## PeggyJS
 PeggyJS es una herramienta para construir parsers (analizadores sintácticos) en **JavaScript**. Está basada en **PEG** (Parsing Expression Grammar), un enfoque formal para definir la gramática de un lenguaje. PeggyJS toma como entrada una especificación de gramática, escrita en su propio formato, y genera un analizador sintáctico en JavaScript que puede procesar entradas y validarlas o extraer información estructurada de ellas.
 
 **Características de PeggyJS:**
@@ -33,7 +34,14 @@ module.exports = {
   plugins: [require("./plugin.js")],
   testFile: "myTestInput.foo",
   trace: true,
+  dependencies: {
+    "foo": "bar",
+    "baz": "qux"
+  }
 };
 ```
 
 Si se modifica el archivo de la gramática, se debe ejecutar el comando para generar el analizador sintáctico.
+
+## ToolJS
+El archivo Tool.js se encarga de generar nuestros nodos y el patrón visitor para recorrer el árbol sintáctico. Este archivo se encuentra en la carpeta `analyzer`. Para utilizarlo se ejecuta el comando `node ./analyzer/Tool.js`

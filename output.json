@@ -1,18 +1,45 @@
 {
-  "tipo": "Suma",
-  "num1": {
-    "tipo": "Numero",
-    "valor": 1
-  },
-  "num2": {
-    "tipo": "Multiplicacion",
-    "num1": {
-      "tipo": "Numero",
-      "valor": 1
+    "location": {
+        "start": {
+            "offset": 0,
+            "line": 1,
+            "column": 1
+        },
+        "end": {
+            "offset": 3,
+            "line": 1,
+            "column": 4
+        }
     },
-    "num2": {
-      "tipo": "Numero",
-      "valor": 4
-    }
-  }
+    "der": {
+        "location": {
+            "start": {
+                "offset": 2,
+                "line": 1,
+                "column": 3
+            },
+            "end": {
+                "offset": 3,
+                "line": 1,
+                "column": 4
+            }
+        },
+        "valor": 1
+    },
+    "izq": {
+        "location": {
+            "start": {
+                "offset": 0,
+                "line": 1,
+                "column": 1
+            },
+            "end": {
+                "offset": 1,
+                "line": 1,
+                "column": 2
+            }
+        },
+        "valor": 1
+    },
+    "op": "+"
 }
