@@ -27,6 +27,18 @@
 
  * @typedef {import('./nodos').ExpresionStatement} ExpresionStatement
 
+
+ * @typedef {import('./nodos').Asignacion} Asignacion
+
+
+ * @typedef {import('./nodos').Bloque} Bloque
+
+
+ * @typedef {import('./nodos').If} If
+
+
+ * @typedef {import('./nodos').While} While
+
  */
 
 
@@ -115,6 +127,42 @@ export class BaseVisitor {
      */
     visitExpresionStatement(node) {
         throw new Error('Metodo visitExpresionStatement no implementado');
+    }
+    
+
+    /**
+     * @param {Asignacion} node
+     * @returns {any}
+     */
+    visitAsignacion(node) {
+        throw new Error('Metodo visitAsignacion no implementado');
+    }
+    
+
+    /**
+     * @param {Bloque} node
+     * @returns {any}
+     */
+    visitBloque(node) {
+        throw new Error('Metodo visitBloque no implementado');
+    }
+    
+
+    /**
+     * @param {If} node
+     * @returns {any}
+     */
+    visitIf(node) {
+        throw new Error('Metodo visitIf no implementado');
+    }
+    
+
+    /**
+     * @param {While} node
+     * @returns {any}
+     */
+    visitWhile(node) {
+        throw new Error('Metodo visitWhile no implementado');
     }
     
 }

@@ -107,6 +107,7 @@ const configuracionNodos = [
         ]
     },
     // DeclaracionVariable
+    // declaracionVariable = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { id, exp }) }
     {
         name: 'DeclaracionVariable',
         extends: 'Expresion',
@@ -124,6 +125,7 @@ const configuracionNodos = [
         ]
     },
     // ReferenciaVariable
+    // Numero = Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
     {
         name: 'ReferenciaVariable',
         extends: 'Expresion',
@@ -136,6 +138,7 @@ const configuracionNodos = [
         ]
     },
     // Print
+    // Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('Print', { exp } ) }
     {
         name: 'Print',
         extends: 'Expresion',
@@ -148,6 +151,7 @@ const configuracionNodos = [
         ]
     },
     // ExpresionStatement
+    // Stmt = exp:Expresion _ ";" { return crearNodo('ExpresionStatement', { exp } ) }
     {
         name: 'ExpresionStatement',
         extends: 'Expresion',
@@ -156,6 +160,78 @@ const configuracionNodos = [
                 name: 'exp',
                 type: 'Expresion',
                 description: 'Expresion a evaluar'
+            }
+        ]
+    },
+    // Asignacion
+    // Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('Asignacion', { id, asgn }) }
+    {
+        name: 'Asignacion',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la variable'
+            },
+            {
+                name: 'asgn',
+                type: 'Expresion',
+                description: 'Expresion a asignar'
+            }
+        ]
+    },
+    // Bloque
+    // Stmt = "{" _ dcls:Declaraciones* _ "}" { return crearNodo('Bloque', { dcls }) }
+    {
+        name: 'Bloque',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'dcls',
+                type: 'Expresion[]',
+                description: 'Lista de expresiones'
+            }
+        ]
+    },
+    // If
+    // Stmt = "if" _ "(" _ cond:Expresion _ ")" _ stmt:Stmt { return crearNodo('If', { cond, stmt }) }
+    {
+        name: 'If',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'cond',
+                type: 'Expresion',
+                description: 'Condicion del if'
+            },
+            {
+                name: 'stmtTrue',
+                type: 'Expresion',
+                description: 'Cuerpo del If'
+            },
+            {
+                name: 'stmtFalse',
+                type: 'Expresion|undefined',
+                description: 'Cuerpo del Else'
+            }
+        ]
+    },
+    // While
+    // Stmt = "while" _ "(" _ cond:Expresion _ ")" _ stmt:Stmt { return crearNodo('While', { cond, stmt }) }
+    {
+        name: 'While',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'cond',
+                type: 'Expresion',
+                description: 'Condicion del while'
+            },
+            {
+                name: 'stmt',
+                type: 'Expresion',
+                description: 'Cuerpo del while'
             }
         ]
     },

@@ -1,6 +1,11 @@
 export class Entorno {
-    constructor() {
+
+    /**
+     * @param {Entorno} padre
+     */
+    constructor(padre = undefined) {
         this.valores = {};
+        this.padre = padre;
     }
 
     /**
@@ -15,6 +20,30 @@ export class Entorno {
      * @param {string} nombre
      */
     getVariable(nombre) {
-        return this.valores[nombre];
+        const valorActual = this.valores[nombre];
+
+        if (valorActual) { return valorActual; }
+
+        if (!valorActual && this.padre) {
+            return this.padre.getVariable(nombre);
+        }
+
+        throw new Error(`La variable ${nombre} no ha sido declarada`);
+    }
+
+    asignarVariable(nombre, valor) {
+        const valorActual = this.valores[nombre];
+
+        if (valorActual) {
+            this.valores[nombre] = valor;
+            return;
+        }
+
+        if (!valorActual && this.padre) {
+            this.padre.asignarVariable(nombre, valor);
+            return;
+        }
+
+        throw new Error(`La variable ${nombre} no ha sido declarada`);
     }
 }

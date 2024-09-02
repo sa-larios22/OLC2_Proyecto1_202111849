@@ -27,6 +27,8 @@ export class InterpreterVisitor extends BaseVisitor {
                 return izq / der;
             case '%':
                 return izq % der;
+            case '<=':
+                return izq <= der;
             default:
                 throw new Error('Operador no soportado');
         }
@@ -87,10 +89,56 @@ export class InterpreterVisitor extends BaseVisitor {
     }
     
     /**
-     * @type { BaseVisitor['visitExpresionStmt'] }
+     * @type { BaseVisitor['visitExpresionStatement'] }
      */
-    visitExpresionStmt(node) {
+    visitExpresionStatement(node) {
         return node.exp.accept(this);
     }
 
+    /**
+     * @type { BaseVisitor['visitAsignacion'] }
+     */
+    visitAsignacion(node) {
+        const valor = node.asgn.accept(this);
+        this.entornoActual.asignarVariable(node.id, valor);
+
+        return valor;
+    }
+
+    /**
+     * @type { BaseVisitor['visitBloque'] }
+     */
+    visitBloque(node) {
+        const entornoAnterior = this.entornoActual;
+        this.entornoActual = new Entorno(entornoAnterior);
+
+        node.dcls.forEach(dcl => dcl.accept(this));
+
+        this.entornoActual = entornoAnterior;
+    }
+
+    /**
+     * @type { BaseVisitor['visitIf']}
+     */
+    visitIf(node) {
+        const condicion = node.cond.accept(this);
+
+        if (condicion) {
+            node.stmtTrue.accept(this);
+            return;
+        }
+        
+        if (node.stmtFalse) {
+            node.stmtFalse.accept(this);
+        }
+    }
+
+    /**
+     * @type { BaseVisitor['visitWhile'] }
+     */
+    visitWhile(node) {
+        while(node.cond.accept(this)) {
+            node.stmt.accept(this);
+        }
+    }
 }
