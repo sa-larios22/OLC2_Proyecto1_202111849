@@ -1,4 +1,8 @@
+import { embededFunctions } from '../instructions/embededFunctions.js';
+import { Invocable } from '../instructions/invocable.js';
+import { BreakException, ContinueException, ReturnException } from '../instructions/transferSentences.js';
 import { Entorno } from './entorno.js';
+import nodos, { Expresion } from './nodos.js';
 import { BaseVisitor } from './visitor.js';
 
 export class InterpreterVisitor extends BaseVisitor {
@@ -6,7 +10,18 @@ export class InterpreterVisitor extends BaseVisitor {
     constructor() {
         super();
         this.entornoActual = new Entorno();
+
+        // Funciones embedidas
+        Object.entries(embededFunctions).forEach(([nombre, funcion]) => {
+            this.entornoActual.setVariable(nombre, funcion);
+        });
+
         this.salida = '';
+
+        /**
+         * @type { Expresion | null}
+         */
+        this.prevContinue = null;
     }
     
     /**
@@ -29,6 +44,8 @@ export class InterpreterVisitor extends BaseVisitor {
                 return izq % der;
             case '<=':
                 return izq <= der;
+            case '==':
+                return izq === der;
             default:
                 throw new Error('Operador no soportado');
         }
@@ -137,8 +154,106 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitWhile'] }
      */
     visitWhile(node) {
-        while(node.cond.accept(this)) {
-            node.stmt.accept(this);
+        const entornoInicial = this.entornoActual;
+
+        try {
+            while(node.cond.accept(this)) {
+                node.stmt.accept(this);
+            }
+        } catch (e) {
+            this.entornoActual = entornoInicial;
+
+            if (e instanceof BreakException) {
+                console.log('Break');
+                return;
+            }
+
+            if (e instanceof ContinueException) {
+                return this.visitWhile(node);
+            }
+
+            throw error;
         }
+    }
+
+    /**
+     * @type { BaseVisitor['visitFor'] }
+     */
+    visitFor(node) {
+        const incrementoAnterior = this.prevContinue;
+        this.prevContinue = node.inc;
+
+        const traducedFor = new nodos.Bloque (
+            {
+                dcls: [
+                    node.init,
+                    new nodos.While(
+                        {
+                            cond: node.cond,
+                            stmt: new nodos.Bloque(
+                                {
+                                    dcls: [
+                                        node.stmt,
+                                        node.inc
+                                    ]
+                                }
+                            )
+                        }
+                    )
+                ]
+            }
+        );
+
+        traducedFor.accept(this);
+
+        this.prevContinue = incrementoAnterior;
+    }
+
+    /**
+     * @type { BaseVisitor['visitBreak'] }
+     */
+    visitBreak(node) {
+        throw new BreakException();
+    }
+
+    /**
+     * @type { BaseVisitor['visitContinue'] }
+     */
+    visitContinue(node) {
+        if (this.prevContinue) {
+            this.prevContinue.accept(this);
+        }
+
+        throw new ContinueException();
+    }
+
+    /**
+     * @type { BaseVisitor['visitReturn'] }
+     */
+    visitReturn(node) {
+        let valor = null;
+        if (node.exp) {
+            valor = node.exp.accept(this);
+        }
+        throw new ReturnException(valor);
+    }
+
+    /**
+     * @type { BaseVisitor['visitLlamada'] }
+     */
+    visitLlamada(node) {
+        const funcion = node.callee.accept(this);
+
+        const argumentos = node.args.map(arg => arg.accept(this));
+
+        if (!(funcion instanceof Invocable)) {
+            throw new Error('No es invocable');
+        }
+
+        if (funcion.aridad() !== argumentos.length) {
+            throw new Error('Aridad incorrecta');
+        }
+
+        return funcion.invocar(this, argumentos);
     }
 }

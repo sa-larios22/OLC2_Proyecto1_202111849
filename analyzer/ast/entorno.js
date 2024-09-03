@@ -22,19 +22,19 @@ export class Entorno {
     getVariable(nombre) {
         const valorActual = this.valores[nombre];
 
-        if (valorActual) { return valorActual; }
+        if (valorActual !== undefined) { return valorActual; }
 
         if (!valorActual && this.padre) {
             return this.padre.getVariable(nombre);
         }
 
-        throw new Error(`La variable ${nombre} no ha sido declarada`);
+        throw new Error(`No se pudo obtener ${nombre}, la variable no ha sido declarada`);
     }
 
     asignarVariable(nombre, valor) {
         const valorActual = this.valores[nombre];
 
-        if (valorActual) {
+        if (valorActual !== undefined) {
             this.valores[nombre] = valor;
             return;
         }
@@ -44,6 +44,6 @@ export class Entorno {
             return;
         }
 
-        throw new Error(`La variable ${nombre} no ha sido declarada`);
+        throw new Error(`No se pudo asignar un nuevo valor a ${nombre}, la variable no ha sido declarada`);
     }
 }

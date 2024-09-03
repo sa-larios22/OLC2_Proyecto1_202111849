@@ -405,4 +405,149 @@ export class While extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, While }
+export class For extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.init Inicializacion de la variable del ciclo for
+ * @param {Expresion} options.cond Condicion del for
+ * @param {Expresion} options.inc Incremento del for
+ * @param {Expresion} options.stmt Cuerpo del for
+    */
+    constructor({ init, cond, inc, stmt }) {
+        super();
+        
+        /**
+         * Inicializacion de la variable del ciclo for
+         * @type {Expresion}
+        */
+        this.init = init;
+
+
+        /**
+         * Condicion del for
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Incremento del for
+         * @type {Expresion}
+        */
+        this.inc = inc;
+
+
+        /**
+         * Cuerpo del for
+         * @type {Expresion}
+        */
+        this.stmt = stmt;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitFor(this);
+    }
+}
+    
+export class Break extends Expresion {
+
+    /**
+    * @param {Object} options
+    * 
+    */
+    constructor() {
+        super();
+        
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitBreak(this);
+    }
+}
+    
+export class Continue extends Expresion {
+
+    /**
+    * @param {Object} options
+    * 
+    */
+    constructor() {
+        super();
+        
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitContinue(this);
+    }
+}
+    
+export class Return extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion|undefined} options.exp Expresion a retornar
+    */
+    constructor({ exp }) {
+        super();
+        
+        /**
+         * Expresion a retornar
+         * @type {Expresion|undefined}
+        */
+        this.exp = exp;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitReturn(this);
+    }
+}
+    
+export class Llamada extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.callee Expresion a llamar
+ * @param {Expresion[]} options.args Argumentos de la llamada
+    */
+    constructor({ callee, args }) {
+        super();
+        
+        /**
+         * Expresion a llamar
+         * @type {Expresion}
+        */
+        this.callee = callee;
+
+
+        /**
+         * Argumentos de la llamada
+         * @type {Expresion[]}
+        */
+        this.args = args;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitLlamada(this);
+    }
+}
+    
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada }

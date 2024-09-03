@@ -13,7 +13,12 @@
                'Asignacion': nodos.Asignacion,
                'Bloque': nodos.Bloque,
                'If': nodos.If,
-               'While': nodos.While
+               'While': nodos.While,
+               'For': nodos.For,
+               'Break': nodos.Break,
+               'Continue': nodos.Continue,
+               'Return': nodos.Return,
+               'Llamada': nodos.Llamada
           }
 
           const nodo = new tipos[tipoNodo](propiedades);
@@ -30,7 +35,6 @@ Declaraciones = dcl:declaracionVariable _ { return dcl }
 declaracionVariable = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { id, exp }) }
 
 Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('Print', { exp } ) }
-     / exp:Expresion _ ";" { return crearNodo('ExpresionStatement', { exp } ) }
      / "{" _ dcls:Declaraciones* _ "}" { return crearNodo('Bloque', { dcls }) }
      / "if" _ "(" _ cond:Expresion _ ")" _ stmtTrue:Stmt
           stmtFalse:(
@@ -38,6 +42,17 @@ Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('Print', { exp } 
                )?
           { return crearNodo('If', { cond, stmtTrue, stmtFalse }) }
      / "while" _ "(" _ cond:Expresion _ ")" _ stmt:Stmt { return crearNodo('While', { cond, stmt }) }
+     / "for" _ "(" _ init:ForInit _ cond:Expresion _ ";" _ inc:Expresion _ ")" _ stmt:Stmt {
+          return crearNodo('For', { init, cond, inc, stmt })
+     }
+     / "break" _ ";" { return crearNodo('Break') }
+     / "continue" _ ";" { return crearNodo('Continue') }
+     / "return" _ exp:Expresion? _ ";" { return crearNodo('Return', { exp }) }
+     / exp:Expresion _ ";" { return crearNodo('ExpresionStatement', { exp } ) }
+
+ForInit = dcl:declaracionVariable { return dcl }
+        / exp:Expresion _ ";" { return exp }
+        / ";" { return null }
 
 Identificador = [a-zA-Z][a-zA-Z0-9]* { return text() }
 
@@ -47,7 +62,7 @@ Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('Asigna
           / Comparacion
 
 Comparacion = izq:Suma expansion:(
-     _ op:("<=") _ der:Suma { return { tipo: op, der } }
+     _ op:("<=" / "==") _ der:Suma { return { tipo: op, der } }
      )* {
      return expansion.reduce(
           (operacionAnterior, operacionActual) => {
@@ -78,12 +93,25 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/") _ der:Unaria { return {
      );
 }
 
-Unaria = "-" _ num:Numero { return crearNodo('Unaria', { op:'-', exp: num }) }
-/ Numero
+Unaria = "-" _ num:Unaria { return crearNodo('Unaria', { op:'-', exp: num }) }
+/ Llamada
 
+Llamada = callee:Numero _ params:("(" args:Argumentos? ")" { return args } )* {
+     return params.reduce(
+          (callee, args) => {
+               return crearNodo('Llamada', { callee, args: args || [] });
+          },
+          callee
+     );
+}
+
+Argumentos = arg:Expresion _ args:("," _ exp:Expresion { return exp } )* { return [arg, ...args] }
 
 Numero = [0-9]+( "." [0-9]+ )? { return crearNodo('Numero', { valor: parseFloat(text()) }) }
   / "(" exp:Expresion ")" { return crearNodo('Parentesis', { exp }) }
   / Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
 
-_ = [ \t\n\r]*
+_ = ([ \t\n\r] / Comentarios)*
+
+Comentarios = "//" (![\n] .)*
+               / "/*" (!("*/") .)* "*/"

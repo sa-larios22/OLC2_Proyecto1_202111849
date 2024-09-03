@@ -19,23 +19,29 @@ btn.addEventListener('click', () => {
     // Obtenemos el código fuente del editor
     const codigoFuente = editor.getValue();
 
-    // Parseamos el código fuente con el analizador generado por PeggyJS
-    // Parse genera un AST en forma de JSON
-    const sentencias = parse(codigoFuente);
+    try {
+        // Parseamos el código fuente con el analizador generado por PeggyJS
+        // Parse genera un AST en forma de JSON
+        const sentencias = parse(codigoFuente);
 
-    // Mostramos el árbol en el textarea
-    ast.innerHTML = JSON.stringify(sentencias, null, 4);
+        // Mostramos el árbol en el textarea
+        ast.innerHTML = JSON.stringify(sentencias, null, 4);
 
-    // Creamos una instancia del visitante de interpretación
-    const interprete = new InterpreterVisitor();
+        // Creamos una instancia del visitante de interpretación
+        const interprete = new InterpreterVisitor();
 
-    console.log( { sentencias } );
+        console.log( { sentencias } );
 
-    sentencias.forEach(sentencia => sentencia.accept(interprete))
+        sentencias.forEach(sentencia => sentencia.accept(interprete))
 
-    output.innerHTML = interprete.salida;
+        output.innerHTML = interprete.salida;
+    } catch (error) {
+        console.log(JSON.stringify(error, null, 4));
+        output.innerHTML = error.message;
+    }
 });
 
 window.addEventListener('resize', () => {
     editor.layout();
 });
+
