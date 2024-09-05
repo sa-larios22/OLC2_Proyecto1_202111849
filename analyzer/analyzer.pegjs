@@ -18,7 +18,9 @@
                'Break': nodos.Break,
                'Continue': nodos.Continue,
                'Return': nodos.Return,
-               'Llamada': nodos.Llamada
+               'Llamada': nodos.Llamada,
+               'DeclaracionFuncion': nodos.DeclaracionFuncion,
+               'DeclaracionClase': nodos.DeclaracionClase
           }
 
           const nodo = new tipos[tipoNodo](propiedades);
@@ -30,12 +32,22 @@
 programa = _ dcl:Declaraciones* _ { return dcl }
 
 Declaraciones = dcl:declaracionVariable _ { return dcl }
+               / dcl:declaracionFuncion _ { return dcl }
                / stmt:Stmt _ { return stmt }
 
 declaracionVariable = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { id, exp }) }
 
+declaracionFuncion = "function" _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('DeclaracionFuncion', { id, params: params || [], bloque })}
+
+declaracionClase = "class" _ id:Identificador _ "{" _ dcls:ClassBody _ "}" { return crearNodo('DeclaracionClase', { id, dcls }) }
+
+ClassBody = dcl:declaracionVariable _ { return dcl }
+          / dcl:declaracionFuncion _ { return dcl }
+
+Parametros = id:Identificador _ params:("," _ ids:Identificador { return ids })* { return [id, ...params] }
+
 Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('Print', { exp } ) }
-     / "{" _ dcls:Declaraciones* _ "}" { return crearNodo('Bloque', { dcls }) }
+     / bloque:Bloque { return bloque }
      / "if" _ "(" _ cond:Expresion _ ")" _ stmtTrue:Stmt
           stmtFalse:(
                     _ "else" _ stmtFalse:Stmt { return stmtFalse }
@@ -49,6 +61,8 @@ Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('Print', { exp } 
      / "continue" _ ";" { return crearNodo('Continue') }
      / "return" _ exp:Expresion? _ ";" { return crearNodo('Return', { exp }) }
      / exp:Expresion _ ";" { return crearNodo('ExpresionStatement', { exp } ) }
+
+Bloque = "{" _ dcls:Declaraciones* _ "}" { return crearNodo('Bloque', { dcls }) }
 
 ForInit = dcl:declaracionVariable { return dcl }
         / exp:Expresion _ ";" { return exp }

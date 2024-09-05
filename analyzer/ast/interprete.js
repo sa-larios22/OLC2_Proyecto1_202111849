@@ -1,4 +1,5 @@
 import { embededFunctions } from '../instructions/embededFunctions.js';
+import { FuncionForanea } from '../instructions/foranea.js';
 import { Invocable } from '../instructions/invocable.js';
 import { BreakException, ContinueException, ReturnException } from '../instructions/transferSentences.js';
 import { Entorno } from './entorno.js';
@@ -13,7 +14,7 @@ export class InterpreterVisitor extends BaseVisitor {
 
         // Funciones embedidas
         Object.entries(embededFunctions).forEach(([nombre, funcion]) => {
-            this.entornoActual.setVariable(nombre, funcion);
+            this.entornoActual.set(nombre, funcion);
         });
 
         this.salida = '';
@@ -86,7 +87,7 @@ export class InterpreterVisitor extends BaseVisitor {
         const nombreVariable = node.id;
         const valorVariable = node.exp.accept(this);
 
-        this.entornoActual.setVariable(nombreVariable, valorVariable);
+        this.entornoActual.set(nombreVariable, valorVariable);
     }
     
     /**
@@ -94,7 +95,7 @@ export class InterpreterVisitor extends BaseVisitor {
      */
     visitReferenciaVariable(node) {
         const nombreVariable = node.id;
-        return this.entornoActual.getVariable(nombreVariable);
+        return this.entornoActual.get(nombreVariable);
     }
     
     /**
@@ -117,7 +118,7 @@ export class InterpreterVisitor extends BaseVisitor {
      */
     visitAsignacion(node) {
         const valor = node.asgn.accept(this);
-        this.entornoActual.asignarVariable(node.id, valor);
+        this.entornoActual.assign(node.id, valor);
 
         return valor;
     }
@@ -255,5 +256,13 @@ export class InterpreterVisitor extends BaseVisitor {
         }
 
         return funcion.invocar(this, argumentos);
+    }
+
+    /**
+     * @type { BaseVisitor['visitDeclaracionFuncion'] }
+     */
+    visitDeclaracionFuncion(node) {
+        const funcion = new FuncionForanea(node, this.entornoActual);
+        this.entornoActual.set(node.id, funcion);
     }
 }

@@ -550,4 +550,45 @@ export class Llamada extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada }
+export class DeclaracionFuncion extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la funcion
+ * @param {string[]} options.params Parametros de la funcion
+ * @param {Bloque} options.bloque Cuerpo de la funcion
+    */
+    constructor({ id, params, bloque }) {
+        super();
+        
+        /**
+         * Identificador de la funcion
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Parametros de la funcion
+         * @type {string[]}
+        */
+        this.params = params;
+
+
+        /**
+         * Cuerpo de la funcion
+         * @type {Bloque}
+        */
+        this.bloque = bloque;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionFuncion(this);
+    }
+}
+    
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion }

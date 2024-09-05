@@ -12,26 +12,26 @@ export class Entorno {
      * @param {string} nombre
      * @param {any} valor
      */
-    setVariable(nombre, valor) {
+    set(nombre, valor) {
         this.valores[nombre] = valor;
     }
 
     /**
      * @param {string} nombre
      */
-    getVariable(nombre) {
+    get(nombre) {
         const valorActual = this.valores[nombre];
 
         if (valorActual !== undefined) { return valorActual; }
 
         if (!valorActual && this.padre) {
-            return this.padre.getVariable(nombre);
+            return this.padre.get(nombre);
         }
 
         throw new Error(`No se pudo obtener ${nombre}, la variable no ha sido declarada`);
     }
 
-    asignarVariable(nombre, valor) {
+    assign(nombre, valor) {
         const valorActual = this.valores[nombre];
 
         if (valorActual !== undefined) {
@@ -40,7 +40,7 @@ export class Entorno {
         }
 
         if (!valorActual && this.padre) {
-            this.padre.asignarVariable(nombre, valor);
+            this.padre.assign(nombre, valor);
             return;
         }
 

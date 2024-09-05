@@ -54,6 +54,9 @@
 
  * @typedef {import('./nodos').Llamada} Llamada
 
+
+ * @typedef {import('./nodos').DeclaracionFuncion} DeclaracionFuncion
+
  */
 
 
@@ -223,6 +226,15 @@ export class BaseVisitor {
      */
     visitLlamada(node) {
         throw new Error('Metodo visitLlamada no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionFuncion} node
+     * @returns {any}
+     */
+    visitDeclaracionFuncion(node) {
+        throw new Error('Metodo visitDeclaracionFuncion no implementado');
     }
     
 }

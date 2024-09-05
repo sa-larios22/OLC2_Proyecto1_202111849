@@ -12,8 +12,15 @@ const editor = monaco.editor.create(
         value: '',
         language: 'java',
         theme: 'vs-dark'
-    },
+    }
 );
+
+const content = localStorage.getItem('content');
+editor.setValue(content || '');
+
+editor.onDidChangeModelContent(() => {
+    localStorage.setItem('content', editor.getValue());
+});
 
 btn.addEventListener('click', () => {
     // Obtenemos el código fuente del editor

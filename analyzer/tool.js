@@ -309,6 +309,47 @@ const configuracionNodos = [
             }
         ]
     },
+    // Declaración de Función
+    // declaracionFuncion = "function" _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('declaracionFuncion', { id, params: params || [], bloque })}
+    {
+        name: 'DeclaracionFuncion',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la funcion'
+            },
+            {
+                name: 'params',
+                type: 'string[]',
+                description: 'Parametros de la funcion'
+            },
+            {
+                name: 'bloque',
+                type: 'Bloque',
+                description: 'Cuerpo de la funcion'
+            }
+        ]
+    },
+    // Clases
+    // declaracionClase = "class" _ id:Identificador _ "{" _ dcls:ClassBody _ "}" { return crearNodo('DeclaracionClase', { id, dcls }) }
+    {
+        name: 'DeclaracionClase',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la clase'
+            },
+            {
+                name: 'dcls',
+                type: 'Expresion[]',
+                description: 'Cuerpo de la clase'
+            }
+        ]
+    },
 ]
 
 let code = ''
