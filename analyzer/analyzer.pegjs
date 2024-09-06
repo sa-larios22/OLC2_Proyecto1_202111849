@@ -130,9 +130,18 @@ Numero = [0-9]+( "." [0-9]+ )+ { return crearNodo('Primitivo', { valor: parseFlo
      / "(" exp:Expresion ")" { return crearNodo('Parentesis', { exp }) }
      / Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
 
-String_ = "\"" texto:( ( "\\" . / [^\"] )* ) "\"" { 
-     return crearNodo('Primitivo', { valor: texto.join(''), tipo:'string' });
- }
+String_ = "\"" texto:( ( "\\\\" / "\\\"" / "\\n" / "\\r" / "\\t" / [^\\"] )* ) "\"" {
+    console.log(texto.join(''));
+    return crearNodo('Primitivo', { 
+        valor: texto.join('')
+           .replace(/\\"/g, '"')
+           .replace(/\\\\/g, '\\')
+           .replace(/\\n/g, '\n')  
+           .replace(/\\r/g, '\r')
+           .replace(/\\t/g, '\t'), 
+        tipo: 'string' 
+    });
+}
 
 Boolean_ = "true" { return crearNodo('Primitivo', { valor: true, tipo:'boolean' }) }
          / "false" { return crearNodo('Primitivo', { valor: false, tipo:'boolean' }) }
