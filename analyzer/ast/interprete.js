@@ -560,6 +560,74 @@ export class InterpreterVisitor extends BaseVisitor {
     }
 
     /**
+     * @type { BaseVisitor['visitSwitch']}
+     */
+    visitSwitch(node) {
+        /**
+         * @type { BaseVisitor['visitExpresion'] }
+         */
+        const expresion = node.exp.accept(this);
+
+        let casoEjecutado = false;
+
+        for (const caso of node.caseList) {
+            /**
+             * @type { BaseVisitor['visitCase'] }
+             */
+            const valorCase = caso.cond.accept(this);
+
+            if (expresion.tipo !== valorCase.tipo) {
+                throw new Error('Los tipos no coinciden');
+            }
+
+            if (expresion.valor === valorCase.valor) {
+                console.log("AAAA")
+                try {
+                    caso.dcls.forEach(dcl => dcl.accept(this));
+                    casoEjecutado = true;
+                    break;
+                } catch (error) {
+                    if (error instanceof BreakException) {
+                        casoEjecutado = true;
+                        break;
+                    }
+                    throw error;
+                }
+            }
+        }
+
+        if (!casoEjecutado && node.defaultCase) {
+            node.defaultCase.dcls.forEach(dcl => dcl.accept(this));
+        }
+    }
+
+    /**
+     * @type { BaseVisitor['visitCase']}
+     */
+    visitCase(node) {
+        /**
+         * @type { BaseVisitor['visitExpresion'] }
+         */
+        const condicionCase = node.cond.accept(this);
+
+        if (condicionCase.tipo !== 'boolean') {
+            throw new Error('La condición no es booleana');
+        }
+
+        if (condicionCase.valor === true) {
+            node.stmt.accept(this);
+            return;
+        }
+    }
+
+    /**
+     * @type { BaseVisitor['visitDefaultCase']}
+     */
+    visitDefaultCase(node) {
+        const declaraciones = node.dcls.map(dcl => dcl.accept(this));
+    }
+
+    /**
      * @type { BaseVisitor['visitWhile'] }
      */
     visitWhile(node) {
@@ -573,7 +641,6 @@ export class InterpreterVisitor extends BaseVisitor {
             this.entornoActual = entornoInicial;
 
             if (e instanceof BreakException) {
-                console.log('Break');
                 return;
             }
 

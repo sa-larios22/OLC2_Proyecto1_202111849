@@ -13,6 +13,9 @@
                'Asignacion': nodos.Asignacion,
                'Bloque': nodos.Bloque,
                'If': nodos.If,
+               'Switch': nodos.Switch,
+               'Case': nodos.Case,
+               'DefaultCase': nodos.DefaultCase,
                'While': nodos.While,
                'For': nodos.For,
                'Break': nodos.Break,
@@ -54,6 +57,9 @@ Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('Print', { exp } 
                     _ "else" _ stmtFalse:Stmt { return stmtFalse }
                )?
           { return crearNodo('If', { cond, stmtTrue, stmtFalse }) }
+     / "switch" _ "(" _ exp:Expresion _ ")" _ "{" _ caseList:CaseList _ defaultCase:DefaultCase? _ "}" {
+          return crearNodo('Switch', { exp, caseList, defaultCase })
+     }
      / "while" _ "(" _ cond:Expresion _ ")" _ stmt:Stmt { return crearNodo('While', { cond, stmt }) }
      / "for" _ "(" _ init:ForInit _ cond:Expresion _ ";" _ inc:Expresion _ ")" _ stmt:Stmt {
           return crearNodo('For', { init, cond, inc, stmt })
@@ -68,6 +74,12 @@ Bloque = "{" _ dcls:Declaraciones* _ "}" { return crearNodo('Bloque', { dcls }) 
 ForInit = dcl:declaracionVariable { return dcl }
         / exp:Expresion _ ";" { return exp }
         / ";" { return null }
+
+CaseList = initialCase:Case otherCases:(_ caso:Case { return caso; } )* { return [initialCase, ...otherCases] }
+
+Case = "case" _ cond:Expresion _ ":" _ dcls:Declaraciones* { return crearNodo('Case', { cond, dcls }) }
+
+DefaultCase = "default" _ ":" _ dcls:Declaraciones* { return crearNodo('DefaultCase', { dcls }) }
 
 Identificador = [a-zA-Z][a-zA-Z0-9]* { return text() }
 

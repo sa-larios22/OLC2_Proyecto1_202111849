@@ -111,17 +111,6 @@ const configuracionNodos = [
             }
         ]
     },
-    {
-        name: 'String',
-        extends: 'Expresion',
-        props: [
-            {
-                name: 'valor',
-                type: 'string',
-                description: 'Valor del string'
-            }
-        ]
-    },
     // DeclaracionVariable
     // declaracionVariable = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { id, exp }) }
     {
@@ -235,6 +224,63 @@ const configuracionNodos = [
                 name: 'stmtFalse',
                 type: 'Expresion|undefined',
                 description: 'Cuerpo del Else'
+            }
+        ]
+    },
+    // Switch
+    // "switch" _ "(" _ exp:Expresion _ ")" _ "{" _ caseList:CaseList _ defaultCase:DefaultCase? _ "}" {
+    //       return crearNodo('Switch', { exp, caseList, defaultCase })
+    //  }
+    // CaseList = initialCase:Case otherCases:(_ Case)* { return [initialCase, ...otherCases] }
+    {
+        name: 'Switch',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'exp',
+                type: 'Expresion',
+                description: 'Expresion a evaluar'
+            },
+            {
+                name: 'caseList',
+                type: 'Expresion[]',
+                description: 'Lista de cases'
+            },
+            {
+                name: 'defaultCase',
+                type: 'Expresion|undefined',
+                description: 'Case por defecto'
+            }
+        ]
+    },
+    // Case
+    // Case = "case" _ cond:Expresion _ ":" _ dcls:Declaraciones* { return crearNodo('Case', { cond, dcls }) }
+    {
+        name: 'Case',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'cond',
+                type: 'Expresion',
+                description: 'Condicion del case'
+            },
+            {
+                name: 'dcls',
+                type: 'Expresion[]',
+                description: 'Lista de expresiones'
+            }
+        ]
+    },
+    // DefaultCase
+    // DefaultCase = "default" _ ":" _ dcls:Declaraciones* { return crearNodo('DefaultCase', { dcls }) }
+    {
+        name: 'DefaultCase',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'dcls',
+                type: 'Expresion[]',
+                description: 'Lista de expresiones'
             }
         ]
     },

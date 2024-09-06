@@ -16,9 +16,6 @@
  * @typedef {import('./nodos').Primitivo} Primitivo
 
 
- * @typedef {import('./nodos').String} String
-
-
  * @typedef {import('./nodos').DeclaracionVariable} DeclaracionVariable
 
 
@@ -38,6 +35,15 @@
 
 
  * @typedef {import('./nodos').If} If
+
+
+ * @typedef {import('./nodos').Switch} Switch
+
+
+ * @typedef {import('./nodos').Case} Case
+
+
+ * @typedef {import('./nodos').DefaultCase} DefaultCase
 
 
  * @typedef {import('./nodos').While} While
@@ -119,15 +125,6 @@ export class BaseVisitor {
     
 
     /**
-     * @param {String} node
-     * @returns {any}
-     */
-    visitString(node) {
-        throw new Error('Metodo visitString no implementado');
-    }
-    
-
-    /**
      * @param {DeclaracionVariable} node
      * @returns {any}
      */
@@ -187,6 +184,33 @@ export class BaseVisitor {
      */
     visitIf(node) {
         throw new Error('Metodo visitIf no implementado');
+    }
+    
+
+    /**
+     * @param {Switch} node
+     * @returns {any}
+     */
+    visitSwitch(node) {
+        throw new Error('Metodo visitSwitch no implementado');
+    }
+    
+
+    /**
+     * @param {Case} node
+     * @returns {any}
+     */
+    visitCase(node) {
+        throw new Error('Metodo visitCase no implementado');
+    }
+    
+
+    /**
+     * @param {DefaultCase} node
+     * @returns {any}
+     */
+    visitDefaultCase(node) {
+        throw new Error('Metodo visitDefaultCase no implementado');
     }
     
 

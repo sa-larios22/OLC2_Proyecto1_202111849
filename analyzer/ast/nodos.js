@@ -173,31 +173,6 @@ export class Primitivo extends Expresion {
     }
 }
     
-export class String extends Expresion {
-
-    /**
-    * @param {Object} options
-    * @param {string} options.valor Valor del string
-    */
-    constructor({ valor }) {
-        super();
-        
-        /**
-         * Valor del string
-         * @type {string}
-        */
-        this.valor = valor;
-
-    }
-
-    /**
-     * @param {BaseVisitor} visitor
-     */
-    accept(visitor) {
-        return visitor.visitString(this);
-    }
-}
-    
 export class DeclaracionVariable extends Expresion {
 
     /**
@@ -410,6 +385,105 @@ export class If extends Expresion {
      */
     accept(visitor) {
         return visitor.visitIf(this);
+    }
+}
+    
+export class Switch extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.exp Expresion a evaluar
+ * @param {Expresion[]} options.caseList Lista de cases
+ * @param {Expresion|undefined} options.defaultCase Case por defecto
+    */
+    constructor({ exp, caseList, defaultCase }) {
+        super();
+        
+        /**
+         * Expresion a evaluar
+         * @type {Expresion}
+        */
+        this.exp = exp;
+
+
+        /**
+         * Lista de cases
+         * @type {Expresion[]}
+        */
+        this.caseList = caseList;
+
+
+        /**
+         * Case por defecto
+         * @type {Expresion|undefined}
+        */
+        this.defaultCase = defaultCase;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitSwitch(this);
+    }
+}
+    
+export class Case extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.cond Condicion del case
+ * @param {Expresion[]} options.dcls Lista de expresiones
+    */
+    constructor({ cond, dcls }) {
+        super();
+        
+        /**
+         * Condicion del case
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Lista de expresiones
+         * @type {Expresion[]}
+        */
+        this.dcls = dcls;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitCase(this);
+    }
+}
+    
+export class DefaultCase extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion[]} options.dcls Lista de expresiones
+    */
+    constructor({ dcls }) {
+        super();
+        
+        /**
+         * Lista de expresiones
+         * @type {Expresion[]}
+        */
+        this.dcls = dcls;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDefaultCase(this);
     }
 }
     
@@ -665,4 +739,4 @@ export class DeclaracionClase extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, String, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase }
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase }
