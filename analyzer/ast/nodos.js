@@ -140,18 +140,51 @@ export class Parentesis extends Expresion {
     }
 }
     
-export class Numero extends Expresion {
+export class Primitivo extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {number} options.valor Valor del numero
+    * @param {number} options.valor Valor del número
+ * @param {string} options.tipo Tipo del dato primitivo
+    */
+    constructor({ valor, tipo }) {
+        super();
+        
+        /**
+         * Valor del número
+         * @type {number}
+        */
+        this.valor = valor;
+
+
+        /**
+         * Tipo del dato primitivo
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitPrimitivo(this);
+    }
+}
+    
+export class String extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.valor Valor del string
     */
     constructor({ valor }) {
         super();
         
         /**
-         * Valor del numero
-         * @type {number}
+         * Valor del string
+         * @type {string}
         */
         this.valor = valor;
 
@@ -161,7 +194,7 @@ export class Numero extends Expresion {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitNumero(this);
+        return visitor.visitString(this);
     }
 }
     
@@ -169,12 +202,20 @@ export class DeclaracionVariable extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {string} options.id Identificador de la variable
+    * @param {string} options.tipo Tipo de la variable
+ * @param {string} options.id Identificador de la variable
  * @param {Expresion} options.exp Expresion de la variable
     */
-    constructor({ id, exp }) {
+    constructor({ tipo, id, exp }) {
         super();
         
+        /**
+         * Tipo de la variable
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
         /**
          * Identificador de la variable
          * @type {string}
@@ -591,4 +632,37 @@ export class DeclaracionFuncion extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion }
+export class DeclaracionClase extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la clase
+ * @param {Expresion[]} options.dcls Cuerpo de la clase
+    */
+    constructor({ id, dcls }) {
+        super();
+        
+        /**
+         * Identificador de la clase
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Cuerpo de la clase
+         * @type {Expresion[]}
+        */
+        this.dcls = dcls;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionClase(this);
+    }
+}
+    
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, String, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase }

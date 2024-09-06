@@ -96,13 +96,29 @@ const configuracionNodos = [
         ]
     },
     {
-        name: 'Numero',
+        name: 'Primitivo',
         extends: 'Expresion',
         props: [
             {
                 name: 'valor',
                 type: 'number',
-                description: 'Valor del numero'
+                description: 'Valor del número'
+            },
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo del dato primitivo'
+            }
+        ]
+    },
+    {
+        name: 'String',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'valor',
+                type: 'string',
+                description: 'Valor del string'
             }
         ]
     },
@@ -112,6 +128,11 @@ const configuracionNodos = [
         name: 'DeclaracionVariable',
         extends: 'Expresion',
         props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de la variable'
+            },
             {
                 name: 'id',
                 type: 'string',

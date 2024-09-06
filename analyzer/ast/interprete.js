@@ -74,18 +74,58 @@ export class InterpreterVisitor extends BaseVisitor {
     }
     
     /**
-     * @type { BaseVisitor['visitNumero'] }
+     * @type { BaseVisitor['visitPrimitivo'] }
      */
-    visitNumero(node) {
-        return node.valor;
+    visitPrimitivo(node) {
+        return { valor: node.valor, tipo: node.tipo }
     }
     
     /**
      * @type { BaseVisitor['visitDeclaracionVariable'] }
      */
     visitDeclaracionVariable(node) {
+        const tipoVariable = node.tipo;
         const nombreVariable = node.id;
-        const valorVariable = node.exp.accept(this);
+        // const valorVariable = node.exp.accept(this);
+        /**
+         * @type { BaseVisitor['visitPrimitivo'] }
+         */
+        const valorVariable = node.exp ? node.exp.accept(this) : null;
+
+        // En caso de que sea la regla
+        // tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ ";" { return crearNodo('DeclaracionVariable', { tipo, id }) }
+        if (valorVariable === null) {
+            switch (tipoVariable) {
+                case 'int':
+                    valorVariable = 0;
+                    break;
+                case 'float':
+                    valorVariable = 0.0;
+                    break;
+                case 'string':
+                    valorVariable = '';
+                    break;
+                case 'boolean':
+                    valorVariable = true;
+                    break;
+                case 'char':
+                    valorVariable = '';
+                    break;
+                case 'var':
+                    throw new Error('No se puede declarar una variable de tipo var sin valor');
+                default:
+                    throw new Error('Tipo de dato no soportado');
+            }
+        } else {
+
+        // En caso de que sea la regla
+        // tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { tipo, id, exp }) }
+
+            // Verificar si el tipo de dato de la asignación y del dato primitivo son iguales
+            if (valorVariable.tipo !== tipoVariable) {
+                throw new Error('Tipo de dato incorrecto en la asignación');
+            }
+        }
 
         this.entornoActual.set(nombreVariable, valorVariable);
     }
@@ -102,8 +142,17 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitPrint'] }
      */
     visitPrint(node) {
+        /**
+         * @type { BaseVisitor['visitExpresion'] }
+         */
         const valor = node.exp.accept(this);
-        this.salida += valor + '\n';
+
+        if (valor.tipo === 'float') {
+            this.salida += valor.valor.toFixed(4) + '\n';
+            return;
+        }
+
+        this.salida += valor.valor + '\n';
     }
     
     /**

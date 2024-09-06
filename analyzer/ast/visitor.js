@@ -13,7 +13,10 @@
  * @typedef {import('./nodos').Parentesis} Parentesis
 
 
- * @typedef {import('./nodos').Numero} Numero
+ * @typedef {import('./nodos').Primitivo} Primitivo
+
+
+ * @typedef {import('./nodos').String} String
 
 
  * @typedef {import('./nodos').DeclaracionVariable} DeclaracionVariable
@@ -56,6 +59,9 @@
 
 
  * @typedef {import('./nodos').DeclaracionFuncion} DeclaracionFuncion
+
+
+ * @typedef {import('./nodos').DeclaracionClase} DeclaracionClase
 
  */
 
@@ -104,11 +110,20 @@ export class BaseVisitor {
     
 
     /**
-     * @param {Numero} node
+     * @param {Primitivo} node
      * @returns {any}
      */
-    visitNumero(node) {
-        throw new Error('Metodo visitNumero no implementado');
+    visitPrimitivo(node) {
+        throw new Error('Metodo visitPrimitivo no implementado');
+    }
+    
+
+    /**
+     * @param {String} node
+     * @returns {any}
+     */
+    visitString(node) {
+        throw new Error('Metodo visitString no implementado');
     }
     
 
@@ -235,6 +250,15 @@ export class BaseVisitor {
      */
     visitDeclaracionFuncion(node) {
         throw new Error('Metodo visitDeclaracionFuncion no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionClase} node
+     * @returns {any}
+     */
+    visitDeclaracionClase(node) {
+        throw new Error('Metodo visitDeclaracionClase no implementado');
     }
     
 }

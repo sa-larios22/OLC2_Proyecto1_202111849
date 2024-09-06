@@ -2,7 +2,7 @@
 {
      const crearNodo = (tipoNodo, propiedades) => {
           const tipos = {
-               'Numero': nodos.Numero,
+               'Primitivo': nodos.Primitivo,
                'Parentesis': nodos.Parentesis,
                'Binaria': nodos.OperacionBinaria,
                'Unaria': nodos.OperacionUnaria,
@@ -35,7 +35,8 @@ Declaraciones = dcl:declaracionVariable _ { return dcl }
                / dcl:declaracionFuncion _ { return dcl }
                / stmt:Stmt _ { return stmt }
 
-declaracionVariable = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { id, exp }) }
+declaracionVariable = tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { tipo, id, exp }) }
+                    / tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ ";" { return crearNodo('DeclaracionVariable', { tipo, id }) }
 
 declaracionFuncion = "function" _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('DeclaracionFuncion', { id, params: params || [], bloque })}
 
@@ -121,9 +122,22 @@ Llamada = callee:Numero _ params:("(" args:Argumentos? ")" { return args } )* {
 
 Argumentos = arg:Expresion _ args:("," _ exp:Expresion { return exp } )* { return [arg, ...args] }
 
-Numero = [0-9]+( "." [0-9]+ )? { return crearNodo('Numero', { valor: parseFloat(text()) }) }
-  / "(" exp:Expresion ")" { return crearNodo('Parentesis', { exp }) }
-  / Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
+Numero = [0-9]+( "." [0-9]+ )+ { return crearNodo('Primitivo', { valor: parseFloat(text()), tipo:'float' }) }
+     / [0-9]+ { return crearNodo('Primitivo', { valor: parseInt(text()), tipo:'int' }) }
+     / string_:String_ { return string_ }
+     / boolean_:Boolean_ { return boolean_ }
+     / char_:Char_ { return char_ }
+     / "(" exp:Expresion ")" { return crearNodo('Parentesis', { exp }) }
+     / Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
+
+String_ = "\"" texto:( ( "\\" . / [^\"] )* ) "\"" { 
+     return crearNodo('Primitivo', { valor: texto.join(''), tipo:'string' });
+ }
+
+Boolean_ = "true" { return crearNodo('Primitivo', { valor: true, tipo:'boolean' }) }
+         / "false" { return crearNodo('Primitivo', { valor: false, tipo:'boolean' }) }
+
+Char_ = "'" char:. "'" { return crearNodo('Primitivo', { valor: char, tipo:'char' }) }
 
 _ = ([ \t\n\r] / Comentarios)*
 
