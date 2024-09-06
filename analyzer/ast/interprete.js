@@ -29,24 +29,365 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitOperacionBinaria'] }
      */
     visitOperacionBinaria(node) {
+        /**
+         * @type { BaseVisitor['visitExpresion'] }
+         */
         const izq = node.izq.accept(this);
-        const der = node.der.accept(this);
 
+        /**
+         * @type { BaseVisitor['visitExpresion'] }
+         */
+        const der = node.der.accept(this);
+        
         switch (node.op) {
             case '+':
-                return izq + der;
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor + der.valor, tipo: 'int' };
+                            case 'float':
+                                return { valor: izq.valor + der.valor, tipo: 'float' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede sumar con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor + der.valor, tipo: 'float' };
+                            case 'float':
+                                return { valor: izq.valor + der.valor, tipo: 'float' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede sumar con un tipo ${der.tipo}`);
+                        }
+                    case 'string':
+                        switch (der.tipo) {
+                            case 'string':
+                                return { valor: izq.valor + der.valor, tipo: 'string' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede sumar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden sumar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
             case '-':
-                return izq - der;
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor - der.valor, tipo: 'int' };
+                            case 'float':
+                                return { valor: izq.valor - der.valor, tipo: 'float' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede restar con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor - der.valor, tipo: 'float' };
+                            case 'float':
+                                return { valor: izq.valor - der.valor, tipo: 'float' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede restar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden restar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
             case '*':
-                return izq * der;
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor * der.valor, tipo: 'int' };
+                            case 'float':
+                                return { valor: izq.valor * der.valor, tipo: 'float' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede multiplicar con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor * der.valor, tipo: 'float' };
+                            case 'float':
+                                return { valor: izq.valor * der.valor, tipo: 'float' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede multiplicar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden multiplicar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
             case '/':
-                return izq / der;
+
+                if (der.valor === 0) {
+                    throw new Error('No se puede dividir por cero');
+                }
+
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: Math.floor(izq.valor / der.valor), tipo: 'int' };
+                            case 'float':
+                                return { valor: izq.valor / der.valor, tipo: 'float' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede dividir con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor / der.valor, tipo: 'float' };
+                            case 'float':
+                                return { valor: izq.valor / der.valor, tipo: 'float' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede dividir con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden dividir los tipos ${izq.tipo} y ${der.tipo}`);
+                }
             case '%':
-                return izq % der;
-            case '<=':
-                return izq <= der;
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor % der.valor, tipo: 'int' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede dividir con un tipo ${der.tipo} para obtener su módulo`);
+                        }
+                    default:
+                        throw new Error(`No se puede obtener el módulo de los tipos ${izq.tipo} y ${der.tipo}`);
+                }
             case '==':
-                return izq === der;
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor === der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor === der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor === der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor === der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'boolean':
+                        switch (der.tipo) {
+                            case 'boolean':
+                                return { valor: izq.valor === der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'string':
+                        switch (der.tipo) {
+                            case 'string':
+                                return { valor: izq.valor === der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'char':
+                        switch (der.tipo) {
+                            case 'char':
+                                return { valor: izq.valor === der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
+            case '!=':
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor !== der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor !== der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor !== der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor !== der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'boolean':
+                        switch (der.tipo) {
+                            case 'boolean':
+                                return { valor: izq.valor !== der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'string':
+                        switch (der.tipo) {
+                            case 'string':
+                                return { valor: izq.valor !== der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'char':
+                        switch (der.tipo) {
+                            case 'char':
+                                return { valor: izq.valor !== der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
+            case '>':
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor > der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor > der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor > der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor > der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'char':
+                        switch (der.tipo) {
+                            case 'char':
+                                return { valor: izq.valor.charCodeAt(0) > der.valor.charCodeAt(0), tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
+            case '>=':
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor >= der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor >= der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor >= der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor >= der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'char':
+                        switch (der.tipo) {
+                            case 'char':
+                                return { valor: izq.valor.charCodeAt(0) >= der.valor.charCodeAt(0), tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
+            case '<':
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor < der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor < der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor < der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor < der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'char':
+                        switch (der.tipo) {
+                            case 'char':
+                                return { valor: izq.valor.charCodeAt(0) < der.valor.charCodeAt(0), tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
+            case '<=':
+                switch (izq.tipo) {
+                    case 'int':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor <= der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor <= der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'float':
+                        switch (der.tipo) {
+                            case 'int':
+                                return { valor: izq.valor <= der.valor, tipo: 'boolean' };
+                            case 'float':
+                                return { valor: izq.valor <= der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    case 'char':
+                        switch (der.tipo) {
+                            case 'char':
+                                return { valor: izq.valor.charCodeAt(0) <= der.valor.charCodeAt(0), tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
+            case '&&':
+                switch (izq.tipo) {
+                    case 'boolean':
+                        switch (der.tipo) {
+                            case 'boolean':
+                                return { valor: izq.valor && der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
+            case '||':
+                switch (izq.tipo) {
+                    case 'boolean':
+                        switch (der.tipo) {
+                            case 'boolean':
+                                return { valor: izq.valor || der.valor, tipo: 'boolean' };
+                            default:
+                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                        }
+                    default:
+                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                }
             default:
                 throw new Error('Operador no soportado');
         }
@@ -56,11 +397,22 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitOperacionUnaria'] }
      */
     visitOperacionUnaria(node) {
+        /**
+         * @type { BaseVisitor['visitExpresion'] }
+         */
         const exp = node.exp.accept(this);
 
         switch (node.op) {
             case '-':
-                return -exp;
+                if (exp.tipo !== 'int' && exp.tipo !== 'float') {
+                    throw new Error('No se puede negar un tipo no numérico');
+                }
+                return { valor: -exp.valor, tipo: exp.tipo };
+            case '!':
+                if (exp.tipo !== 'boolean') {
+                    throw new Error('No se puede negar un tipo no booleano');
+                }
+                return { valor: !exp.valor, tipo: 'boolean' };
             default:
                 throw new Error('Operador no soportado');
         }
@@ -188,9 +540,16 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitIf']}
      */
     visitIf(node) {
+        /**
+         * @type { BaseVisitor['visitExpresion'] }
+         */
         const condicion = node.cond.accept(this);
 
-        if (condicion) {
+        if (condicion.tipo !== 'boolean') {
+            throw new Error('La condición no es booleana');
+        }
+
+        if (condicion.valor === true) {
             node.stmtTrue.accept(this);
             return;
         }

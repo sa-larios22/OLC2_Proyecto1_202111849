@@ -73,11 +73,64 @@ Identificador = [a-zA-Z][a-zA-Z0-9]* { return text() }
 
 Expresion = Asignacion
 
-Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('Asignacion', { id, asgn }) }
-          / Comparacion
+Asignacion = id:Identificador _ "=" _ asgn:Expresion { return crearNodo('Asignacion', { id, asgn }) }
+          / id:Identificador _ "+=" _ asgn:Expresion {
+               return crearNodo('Asignacion', {
+                    id,
+                    asgn: crearNodo('Binaria', {
+                         op:'+',
+                         izq: crearNodo('ReferenciaVariable', { id } ),
+                         der: asgn
+                    })
+               })
+          }
+          / id:Identificador _ "-=" _ asgn:Expresion { 
+               return crearNodo('Asignacion', {
+                    id,
+                    asgn: crearNodo('Binaria', {
+                         op:'-',
+                         izq: crearNodo('ReferenciaVariable', { id } ),
+                         der: asgn
+                    })
+               })
+          }
+          / OrLogico
+
+
+OrLogico = izq:AndLogico expansion:( _ "||" _ der:AndLogico { return { tipo: '||', der } } )* {
+     return expansion.reduce(
+          (operacionAnterior, operacionActual) => {
+               const { tipo, der } = operacionActual;
+               return crearNodo('Binaria', { op:tipo, izq:operacionAnterior, der });
+          },
+          izq
+     );
+}
+
+AndLogico = izq:Igualdad expansion:( _ "&&" _ der:Igualdad { return { tipo: '&&', der } } )* {
+     return expansion.reduce(
+          (operacionAnterior, operacionActual) => {
+               const { tipo, der } = operacionActual;
+               return crearNodo('Binaria', { op:tipo, izq:operacionAnterior, der });
+          },
+          izq
+     );
+}
+
+Igualdad = izq:Comparacion expansion:(
+     _ op:("==" / "!=") _ der:Comparacion { return { tipo: op, der } }
+     )* {
+     return expansion.reduce(
+          (operacionAnterior, operacionActual) => {
+               const { tipo, der } = operacionActual;
+               return crearNodo('Binaria', { op:tipo, izq:operacionAnterior, der });
+          },
+          izq
+     );
+}
 
 Comparacion = izq:Suma expansion:(
-     _ op:("<=" / "==") _ der:Suma { return { tipo: op, der } }
+     _ op:("<" / "<=" / ">=" / ">") _ der:Suma { return { tipo: op, der } }
      )* {
      return expansion.reduce(
           (operacionAnterior, operacionActual) => {
@@ -98,7 +151,7 @@ Suma = izq:Multiplicacion expansion:( _ op:("+" / "-") _ der:Multiplicacion { re
      );
 }
 
-Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/") _ der:Unaria { return { tipo: op, der } } )* {
+Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria { return { tipo: op, der } } )* {
      return expansion.reduce(
           (operacionAnterior, operacionActual) => {
                const { tipo, der } = operacionActual;
@@ -108,8 +161,9 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/") _ der:Unaria { return {
      );
 }
 
-Unaria = "-" _ num:Unaria { return crearNodo('Unaria', { op:'-', exp: num }) }
-/ Llamada
+Unaria = "!" _ num:Unaria { return crearNodo('Unaria', { op:'!', exp: num }) }
+     / "-" _ num:Unaria { return crearNodo('Unaria', { op:'-', exp: num }) }
+     / Llamada
 
 Llamada = callee:Numero _ params:("(" args:Argumentos? ")" { return args } )* {
      return params.reduce(
@@ -131,7 +185,6 @@ Numero = [0-9]+( "." [0-9]+ )+ { return crearNodo('Primitivo', { valor: parseFlo
      / Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
 
 String_ = "\"" texto:( ( "\\\\" / "\\\"" / "\\n" / "\\r" / "\\t" / [^\\"] )* ) "\"" {
-    console.log(texto.join(''));
     return crearNodo('Primitivo', { 
         valor: texto.join('')
            .replace(/\\"/g, '"')
