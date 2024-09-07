@@ -134,6 +134,31 @@ const configuracionNodos = [
             }
         ]
     },
+    // DeclaracionArray
+    // declaracionArray = tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "{" _ exp:arrayValores _ "}" _ ";" { return crearNodo('DeclaracionArray', { tipo, id, exp }) }
+    //            / tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "new" _ tipoArray:("int" / "float" / "string" / "boolean" / "char") _ "[" _ exp:Expresion _ "]" _ ";" { return crearNodo('DeclaracionArray', { tipo, id, exp }) }
+    //            / tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionArray', { tipo, id, exp }) }
+    {
+        name: 'DeclaracionArray',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de la variable'
+            },
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la variable'
+            },
+            {
+                name: 'exp',
+                type: 'Expresion|Expresion[]',
+                description: 'Expresion de la variable'
+            }
+        ]
+    },
     // ReferenciaVariable
     // Numero = Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
     {

@@ -7,6 +7,7 @@
                'Binaria': nodos.OperacionBinaria,
                'Unaria': nodos.OperacionUnaria,
                'DeclaracionVariable': nodos.DeclaracionVariable,
+               'DeclaracionArray': nodos.DeclaracionArray,
                'ReferenciaVariable': nodos.ReferenciaVariable,
                'Print': nodos.Print,
                'ExpresionStatement': nodos.ExpresionStatement,
@@ -35,11 +36,23 @@
 programa = _ dcl:Declaraciones* _ { return dcl }
 
 Declaraciones = dcl:declaracionVariable _ { return dcl }
+               / dcl:declaracionArray _ { return dcl }
                / dcl:declaracionFuncion _ { return dcl }
                / stmt:Stmt _ { return stmt }
 
 declaracionVariable = tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { tipo, id, exp }) }
                     / tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ ";" { return crearNodo('DeclaracionVariable', { tipo, id }) }
+
+declaracionArray = tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "{" _ exp:arrayValores _ "}" _ ";" { return crearNodo('DeclaracionArray', { tipo, id, exp }) }
+               / tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "new" _ tipoArray:("int" / "float" / "string" / "boolean" / "char") _ "[" _ exp:Expresion _ "]" _ ";" {
+                    if (tipo.slice(0,-2) !== tipoArray) {
+                         throw new Error(`Error: No se puede asignar un array de tipo ${tipoArray} a un array de tipo ${tipo}`);
+                    }
+                    return crearNodo('DeclaracionArray', { tipo, id, exp })
+               }
+               / tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionArray', { tipo, id, exp }) }
+
+arrayValores = exp:Expresion _ valores:(_ "," _ exp_:Expresion { return exp_ } )* { return [exp, ...valores] }
 
 declaracionFuncion = "function" _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('DeclaracionFuncion', { id, params: params || [], bloque })}
 

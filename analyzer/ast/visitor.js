@@ -19,6 +19,9 @@
  * @typedef {import('./nodos').DeclaracionVariable} DeclaracionVariable
 
 
+ * @typedef {import('./nodos').DeclaracionArray} DeclaracionArray
+
+
  * @typedef {import('./nodos').ReferenciaVariable} ReferenciaVariable
 
 
@@ -130,6 +133,15 @@ export class BaseVisitor {
      */
     visitDeclaracionVariable(node) {
         throw new Error('Metodo visitDeclaracionVariable no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionArray} node
+     * @returns {any}
+     */
+    visitDeclaracionArray(node) {
+        throw new Error('Metodo visitDeclaracionArray no implementado');
     }
     
 

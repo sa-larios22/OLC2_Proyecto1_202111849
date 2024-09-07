@@ -3,7 +3,7 @@ import { FuncionForanea } from '../instructions/foranea.js';
 import { Invocable } from '../instructions/invocable.js';
 import { BreakException, ContinueException, ReturnException } from '../instructions/transferSentences.js';
 import { Entorno } from './entorno.js';
-import nodos, { Expresion } from './nodos.js';
+import nodos, { Expresion, Primitivo, ReferenciaVariable } from './nodos.js';
 import { BaseVisitor } from './visitor.js';
 
 export class InterpreterVisitor extends BaseVisitor {
@@ -442,26 +442,26 @@ export class InterpreterVisitor extends BaseVisitor {
         /**
          * @type { BaseVisitor['visitPrimitivo'] }
          */
-        const valorVariable = node.exp ? node.exp.accept(this) : null;
+        const valorVariable = node.exp ? node.exp.accept(this) : undefined;
 
         // En caso de que sea la regla
         // tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ ";" { return crearNodo('DeclaracionVariable', { tipo, id }) }
-        if (valorVariable === null) {
+        if (valorVariable === undefined) {
             switch (tipoVariable) {
                 case 'int':
-                    valorVariable = 0;
+                    node.exp = { valor: 0, tipo: 'int' };
                     break;
                 case 'float':
-                    valorVariable = 0.0;
+                    node.exp = { valor: 0.0, tipo: 'float' };
                     break;
                 case 'string':
-                    valorVariable = '';
+                    node.exp = { valor: '', tipo: 'string' };
                     break;
                 case 'boolean':
-                    valorVariable = true;
+                    node.exp = { valor: true, tipo: 'boolean' };
                     break;
                 case 'char':
-                    valorVariable = '';
+                    node.exp = { valor: '', tipo: 'char' };
                     break;
                 case 'var':
                     throw new Error('No se puede declarar una variable de tipo var sin valor');
@@ -477,11 +477,77 @@ export class InterpreterVisitor extends BaseVisitor {
             if (valorVariable.tipo !== tipoVariable) {
                 throw new Error('Tipo de dato incorrecto en la asignación');
             }
+
+            this.entornoActual.set(nombreVariable, valorVariable);
+            return;
         }
 
-        this.entornoActual.set(nombreVariable, valorVariable);
+        this.entornoActual.set(nombreVariable, node.exp);
     }
-    
+
+    /**
+     * @type { BaseVisitor['visitDeclaracionArray'] }
+     */
+    visitDeclaracionArray(node) {
+        const tipoArreglo = node.tipo;
+        const id = node.id;
+        const exp = node.exp;
+
+        // Declaración reservando una cantidad de elementos
+        if (!(exp instanceof Array) && (exp instanceof Primitivo) && (exp !== null || exp !== undefined)) {
+            const longitud = exp.accept(this);
+            const arreglo = [];
+            for (let i = 0; i < longitud.valor; i++) {
+                switch (tipoArreglo.slice(0, -2)) {
+                    case 'int':
+                        arreglo.push({ valor: 0, tipo: 'int' });
+                        break;
+                    case 'float':
+                        arreglo.push({ valor: 0.0, tipo: 'float' });
+                        break;
+                    case 'string':
+                        arreglo.push({ valor: '', tipo: 'string' });
+                        break;
+                    case 'boolean':
+                        arreglo.push({ valor: true, tipo: 'boolean' });
+                        break;
+                    case 'char':
+                        arreglo.push({ valor: '\u0000', tipo: 'char' });
+                        break;
+                    default:
+                        throw new Error('Tipo de dato no soportado');
+                }
+            }
+            this.entornoActual.set(id, { valor: arreglo, tipo: tipoArreglo });
+            return;
+        }
+
+        // Declaración cuando se asigna una referencia a un arreglo ya existente
+        if (exp instanceof ReferenciaVariable) {
+            
+            /**
+             * @type { BaseVisitor['visitReferenciaVariable'] }
+             */
+            const referencia = exp.accept(this);
+
+            this.entornoActual.set(id, referencia);
+        
+            return;
+        }
+
+        exp.forEach(e => {
+            if (e.tipo !== tipoArreglo.slice(0, -2)) {
+                throw new Error(`Tipo de dato incorrecto en la asignación: el elemento ${e.valor} no es de tipo ${tipoArreglo.slice(0, -2)}`);
+            }
+        })
+
+        // Declaración con inicialización de valores
+        const arregloValores = exp.map(e => e.accept(this));
+
+        this.entornoActual.set(id, { valor: arregloValores, tipo: tipoArreglo });
+
+    }
+
     /**
      * @type { BaseVisitor['visitReferenciaVariable'] }
      */
@@ -499,8 +565,17 @@ export class InterpreterVisitor extends BaseVisitor {
          */
         const valor = node.exp.accept(this);
 
-        if (valor.tipo === 'float') {
-            this.salida += valor.valor.toFixed(4) + '\n';
+        // if (valor.tipo === 'float') {
+        //     this.salida += valor.valor.toFixed(4) + '\n';
+        //     return;
+        // }
+
+        if (valor.valor instanceof Array) {
+            const arrayPrint = []
+            valor.valor.forEach((v) => {
+                arrayPrint.push(v.valor)
+            })
+            this.salida += arrayPrint + '\n';
             return;
         }
 

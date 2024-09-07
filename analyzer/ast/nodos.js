@@ -214,6 +214,47 @@ export class DeclaracionVariable extends Expresion {
     }
 }
     
+export class DeclaracionArray extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de la variable
+ * @param {string} options.id Identificador de la variable
+ * @param {Expresion|Expresion[]} options.exp Expresion de la variable
+    */
+    constructor({ tipo, id, exp }) {
+        super();
+        
+        /**
+         * Tipo de la variable
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador de la variable
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Expresion de la variable
+         * @type {Expresion|Expresion[]}
+        */
+        this.exp = exp;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionArray(this);
+    }
+}
+    
 export class ReferenciaVariable extends Expresion {
 
     /**
@@ -739,4 +780,4 @@ export class DeclaracionClase extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase }
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase }

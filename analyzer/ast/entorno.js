@@ -14,6 +14,7 @@ export class Entorno {
      */
     set(nombre, valor) {
         this.valores[nombre] = valor;
+        // console.log(this.valores);
     }
 
     /**
@@ -21,6 +22,14 @@ export class Entorno {
      */
     get(nombre) {
         const valorActual = this.valores[nombre];
+
+        // if (valorActual !== undefined && (valorActual.tipo === 'int[]' || valorActual.tipo ==='float[]' || valorActual.tipo === 'string[]' || valorActual.tipo === 'boolean[]' || valorActual.tipo === 'char[]')) {
+        //     const listaValores = [];
+        //     for (let i = 0; i < valorActual.valor.length; i++) {
+        //         listaValores.push(valorActual.valor[i]);
+        //     }
+        //     return { tipo: valorActual.tipo, valor: listaValores };
+        // }
 
         if (valorActual !== undefined) { return valorActual; }
 
