@@ -172,6 +172,24 @@ const configuracionNodos = [
             }
         ]
     },
+    // ReferenciaArray
+    // Numero = id:Identificador _ "[" _ num:Numero _ "]" { return crearNodo('ReferenciaArray', { id, num } ); }
+    {
+        name: 'ReferenciaArray',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador del arreglo'
+            },
+            {
+                name: 'num',
+                type: 'Expresion',
+                description: 'Indice del arreglo'
+            }
+        ]
+    },
     // Print
     // Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('Print', { exp } ) }
     {
@@ -208,6 +226,11 @@ const configuracionNodos = [
                 name: 'id',
                 type: 'string',
                 description: 'Identificador de la variable'
+            },
+            {
+                name: 'index',
+                type: 'Expresion|undefined',
+                description: 'Indice del arreglo'
             },
             {
                 name: 'asgn',

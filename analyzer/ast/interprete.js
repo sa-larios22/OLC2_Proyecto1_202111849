@@ -555,6 +555,37 @@ export class InterpreterVisitor extends BaseVisitor {
         const nombreVariable = node.id;
         return this.entornoActual.get(nombreVariable);
     }
+
+    /**
+     * @type { BaseVisitor['visitReferenciaArray'] }
+     */
+    visitReferenciaArray(node) {
+        const id = node.id;
+        /**
+         * @type { BaseVisitor['visitPrimitivo']}
+         */
+        const index = node.num.accept(this);
+        // console.log(id);
+        // console.log(index);
+
+        const arreglo = this.entornoActual.get(id);
+        // console.log(arreglo);
+
+        if (index.tipo !== 'int') {
+            throw new Error('El índice debe ser de tipo entero');
+        }
+
+        if (index.valor < 0 || index.valor >= arreglo.length) {
+            throw new Error('Índice fuera de rango');
+        }
+
+        // console.log(arreglo.valor[index.valor]);
+        if (!(arreglo instanceof Array)) {
+            return arreglo.valor[index.valor];
+        } else {
+            return arreglo[index.valor];
+        }
+    }
     
     /**
      * @type { BaseVisitor['visitPrint'] }
@@ -593,9 +624,47 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitAsignacion'] }
      */
     visitAsignacion(node) {
-        const valor = node.asgn.accept(this);
-        this.entornoActual.assign(node.id, valor);
+        
+        // console.log('Nodo', node);
 
+        const valor = node.asgn.accept(this);
+        // console.log('Valor a asignar', valor);
+
+        // En caso que num sea un número, se trata de una asignación a un elemento de un arreglo
+        if (node.index !== undefined) {
+            const index = node.index.accept(this);
+            const arreglo = this.entornoActual.get(node.id);
+            
+            // console.log('Índice', index);
+            // console.log('Arreglo', arreglo);
+            // console.log('Posición a cambiar', arreglo.valor[index.valor]);
+            // console.log('Valor', valor);
+            // arreglo.valor[index.valor] = valor;
+
+            const nuevoArreglo = arreglo.valor.map((v, i) => {
+
+                // console.log('V', v);
+
+                if (v.tipo !== valor.tipo) {
+                    throw new Error(`Tipo de dato incorrecto en la asignación: el elemento ${v.valor} no es de tipo ${valor.tipo}`);
+                }
+                
+                if (i === index.valor) {
+                    return valor;
+                }
+
+                return v;
+            })
+
+            // console.log('Nuevo arreglo', nuevoArreglo);
+            
+            this.entornoActual.assign(node.id, nuevoArreglo);
+            return valor;
+        }
+        
+        // console.log('ID', node.id);
+
+        this.entornoActual.assign(node.id, valor);
         return valor;
     }
 

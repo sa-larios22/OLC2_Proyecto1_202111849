@@ -13,8 +13,9 @@ export class Entorno {
      * @param {any} valor
      */
     set(nombre, valor) {
+        // console.log('pre-set', this.valores);
         this.valores[nombre] = valor;
-        // console.log(this.valores);
+        console.log('post-set', this.valores);
     }
 
     /**

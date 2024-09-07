@@ -280,6 +280,39 @@ export class ReferenciaVariable extends Expresion {
     }
 }
     
+export class ReferenciaArray extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador del arreglo
+ * @param {Expresion} options.num Indice del arreglo
+    */
+    constructor({ id, num }) {
+        super();
+        
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice del arreglo
+         * @type {Expresion}
+        */
+        this.num = num;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitReferenciaArray(this);
+    }
+}
+    
 export class Print extends Expresion {
 
     /**
@@ -335,9 +368,10 @@ export class Asignacion extends Expresion {
     /**
     * @param {Object} options
     * @param {string} options.id Identificador de la variable
+ * @param {Expresion|undefined} options.index Indice del arreglo
  * @param {Expresion} options.asgn Expresion a asignar
     */
-    constructor({ id, asgn }) {
+    constructor({ id, index, asgn }) {
         super();
         
         /**
@@ -345,6 +379,13 @@ export class Asignacion extends Expresion {
          * @type {string}
         */
         this.id = id;
+
+
+        /**
+         * Indice del arreglo
+         * @type {Expresion|undefined}
+        */
+        this.index = index;
 
 
         /**
@@ -780,4 +821,4 @@ export class DeclaracionClase extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase }
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase }

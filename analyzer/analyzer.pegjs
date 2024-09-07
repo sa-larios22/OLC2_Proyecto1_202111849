@@ -9,6 +9,7 @@
                'DeclaracionVariable': nodos.DeclaracionVariable,
                'DeclaracionArray': nodos.DeclaracionArray,
                'ReferenciaVariable': nodos.ReferenciaVariable,
+               'ReferenciaArray': nodos.ReferenciaArray,
                'Print': nodos.Print,
                'ExpresionStatement': nodos.ExpresionStatement,
                'Asignacion': nodos.Asignacion,
@@ -98,7 +99,8 @@ Identificador = [a-zA-Z][a-zA-Z0-9]* { return text() }
 
 Expresion = Asignacion
 
-Asignacion = id:Identificador _ "=" _ asgn:Expresion { return crearNodo('Asignacion', { id, asgn }) }
+Asignacion = id:Identificador "[" _ index:Numero _ "]" _ "=" _ asgn:Expresion { return crearNodo('Asignacion', { id, index, asgn }) }
+          / id:Identificador _ "=" _ asgn:Expresion { return crearNodo('Asignacion', { id, asgn }) }
           / id:Identificador _ "+=" _ asgn:Expresion {
                return crearNodo('Asignacion', {
                     id,
@@ -207,6 +209,7 @@ Numero = [0-9]+( "." [0-9]+ )+ { return crearNodo('Primitivo', { valor: parseFlo
      / boolean_:Boolean_ { return boolean_ }
      / char_:Char_ { return char_ }
      / "(" exp:Expresion ")" { return crearNodo('Parentesis', { exp }) }
+     / id:Identificador _ "[" _ num:Numero _ "]" { return crearNodo('ReferenciaArray', { id, num } ); }
      / Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
 
 String_ = "\"" texto:( ( "\\\\" / "\\\"" / "\\n" / "\\r" / "\\t" / [^\\"] )* ) "\"" {

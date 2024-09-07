@@ -25,6 +25,9 @@
  * @typedef {import('./nodos').ReferenciaVariable} ReferenciaVariable
 
 
+ * @typedef {import('./nodos').ReferenciaArray} ReferenciaArray
+
+
  * @typedef {import('./nodos').Print} Print
 
 
@@ -151,6 +154,15 @@ export class BaseVisitor {
      */
     visitReferenciaVariable(node) {
         throw new Error('Metodo visitReferenciaVariable no implementado');
+    }
+    
+
+    /**
+     * @param {ReferenciaArray} node
+     * @returns {any}
+     */
+    visitReferenciaArray(node) {
+        throw new Error('Metodo visitReferenciaArray no implementado');
     }
     
 
