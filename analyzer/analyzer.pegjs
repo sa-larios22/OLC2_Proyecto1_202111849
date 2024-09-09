@@ -157,7 +157,7 @@ Igualdad = izq:Comparacion expansion:(
 }
 
 Comparacion = izq:Suma expansion:(
-     _ op:("<" / "<=" / ">=" / ">") _ der:Suma { return { tipo: op, der } }
+     _ op:("<=" / "<" / ">=" / ">") _ der:Suma { return { tipo: op, der } }
      )* {
      return expansion.reduce(
           (operacionAnterior, operacionActual) => {
@@ -188,8 +188,7 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria { re
      );
 }
 
-Unaria = "!" _ num:Unaria { return crearNodo('Unaria', { op:'!', exp: num }) }
-     / "-" _ num:Unaria { return crearNodo('Unaria', { op:'-', exp: num }) }
+Unaria = op:("!" / "-") _ exp:Unaria { return crearNodo('Unaria', { op, exp }) }
      / Llamada
 
 Llamada = callee:Numero _ params:("(" args:Argumentos? ")" { return args } )* {

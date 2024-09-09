@@ -5,6 +5,7 @@ import { BreakException, ContinueException, ReturnException } from '../instructi
 import { Entorno } from './entorno.js';
 import nodos, { Expresion, Primitivo, ReferenciaVariable } from './nodos.js';
 import { BaseVisitor } from './visitor.js';
+import { Error_ } from '../errors/error_.js';
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -49,7 +50,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor + der.valor, tipo: 'float' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede sumar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede sumar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -58,17 +59,17 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor + der.valor, tipo: 'float' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede sumar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede sumar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'string':
                         switch (der.tipo) {
                             case 'string':
                                 return { valor: izq.valor + der.valor, tipo: 'string' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede sumar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede sumar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden sumar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden sumar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '-':
                 switch (izq.tipo) {
@@ -79,7 +80,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor - der.valor, tipo: 'float' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede restar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede restar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -88,10 +89,10 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor - der.valor, tipo: 'float' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede restar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede restar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden restar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden restar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '*':
                 switch (izq.tipo) {
@@ -102,7 +103,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor * der.valor, tipo: 'float' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede multiplicar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede multiplicar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -111,15 +112,15 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor * der.valor, tipo: 'float' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede multiplicar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede multiplicar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden multiplicar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden multiplicar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '/':
 
                 if (der.valor === 0) {
-                    throw new Error('No se puede dividir por cero');
+                    throw new Error_('No se puede dividir por cero', node.der.location.start.line, node.der.location.start.column, 'Semantico');
                 }
 
                 switch (izq.tipo) {
@@ -130,7 +131,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor / der.valor, tipo: 'float' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede dividir con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede dividir con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -139,10 +140,10 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor / der.valor, tipo: 'float' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede dividir con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede dividir con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden dividir los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden dividir los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '%':
                 switch (izq.tipo) {
@@ -151,10 +152,10 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'int':
                                 return { valor: izq.valor % der.valor, tipo: 'int' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede dividir con un tipo ${der.tipo} para obtener su módulo`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede dividir con un tipo ${der.tipo} para obtener su módulo`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se puede obtener el módulo de los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se puede obtener el módulo de los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '==':
                 switch (izq.tipo) {
@@ -165,7 +166,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor === der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -174,31 +175,31 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor === der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'boolean':
                         switch (der.tipo) {
                             case 'boolean':
                                 return { valor: izq.valor === der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'string':
                         switch (der.tipo) {
                             case 'string':
                                 return { valor: izq.valor === der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'char':
                         switch (der.tipo) {
                             case 'char':
                                 return { valor: izq.valor === der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '!=':
                 switch (izq.tipo) {
@@ -209,7 +210,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor !== der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -218,31 +219,31 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor !== der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'boolean':
                         switch (der.tipo) {
                             case 'boolean':
                                 return { valor: izq.valor !== der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'string':
                         switch (der.tipo) {
                             case 'string':
                                 return { valor: izq.valor !== der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'char':
                         switch (der.tipo) {
                             case 'char':
                                 return { valor: izq.valor !== der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '>':
                 switch (izq.tipo) {
@@ -253,7 +254,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor > der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -262,17 +263,17 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor > der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'char':
                         switch (der.tipo) {
                             case 'char':
                                 return { valor: izq.valor.charCodeAt(0) > der.valor.charCodeAt(0), tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '>=':
                 switch (izq.tipo) {
@@ -283,7 +284,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor >= der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -292,17 +293,17 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor >= der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'char':
                         switch (der.tipo) {
                             case 'char':
                                 return { valor: izq.valor.charCodeAt(0) >= der.valor.charCodeAt(0), tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '<':
                 switch (izq.tipo) {
@@ -313,7 +314,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor < der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -322,17 +323,17 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor < der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'char':
                         switch (der.tipo) {
                             case 'char':
                                 return { valor: izq.valor.charCodeAt(0) < der.valor.charCodeAt(0), tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '<=':
                 switch (izq.tipo) {
@@ -343,7 +344,7 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor <= der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'float':
                         switch (der.tipo) {
@@ -352,17 +353,17 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'float':
                                 return { valor: izq.valor <= der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     case 'char':
                         switch (der.tipo) {
                             case 'char':
                                 return { valor: izq.valor.charCodeAt(0) <= der.valor.charCodeAt(0), tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '&&':
                 switch (izq.tipo) {
@@ -371,10 +372,10 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'boolean':
                                 return { valor: izq.valor && der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             case '||':
                 switch (izq.tipo) {
@@ -383,13 +384,13 @@ export class InterpreterVisitor extends BaseVisitor {
                             case 'boolean':
                                 return { valor: izq.valor || der.valor, tipo: 'boolean' };
                             default:
-                                throw new Error(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`);
+                                throw new Error_(`Un tipo ${izq.tipo} no se puede comparar con un tipo ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                         }
                     default:
-                        throw new Error(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`);
+                        throw new Error_(`No se pueden comparar los tipos ${izq.tipo} y ${der.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
                 }
             default:
-                throw new Error('Operador no soportado');
+                throw new Error_('Operador no soportado', node.location.start.line , node.location.start.column, 'Semantico');
         }
     }
     
@@ -405,16 +406,16 @@ export class InterpreterVisitor extends BaseVisitor {
         switch (node.op) {
             case '-':
                 if (exp.tipo !== 'int' && exp.tipo !== 'float') {
-                    throw new Error('No se puede negar un tipo no numérico');
+                    throw new Error_('No se puede negar un tipo no numérico', node.location.start.line, node.location.start.column, 'Semantico');
                 }
                 return { valor: -exp.valor, tipo: exp.tipo };
             case '!':
                 if (exp.tipo !== 'boolean') {
-                    throw new Error('No se puede negar un tipo no booleano');
+                    throw new Error_('No se puede negar un tipo no booleano', node.location.start.line, node.location.start.column, 'Semantico');
                 }
                 return { valor: !exp.valor, tipo: 'boolean' };
             default:
-                throw new Error('Operador no soportado');
+                throw new Error_('Operador no soportado', node.location.start.line , node.location.start.column, 'Semantico');
         }
     }
     
@@ -422,7 +423,7 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitParentesis'] }
      */
     visitParentesis(node) {
-        return node.accept(this);
+        return node.exp.accept(this);
     }
     
     /**
@@ -438,7 +439,6 @@ export class InterpreterVisitor extends BaseVisitor {
     visitDeclaracionVariable(node) {
         const tipoVariable = node.tipo;
         const nombreVariable = node.id;
-        // const valorVariable = node.exp.accept(this);
         /**
          * @type { BaseVisitor['visitPrimitivo'] }
          */
@@ -464,9 +464,10 @@ export class InterpreterVisitor extends BaseVisitor {
                     node.exp = { valor: '', tipo: 'char' };
                     break;
                 case 'var':
-                    throw new Error('No se puede declarar una variable de tipo var sin valor');
+                    node.exp = { valor: null, tipo: 'null' };
+                    break;
                 default:
-                    throw new Error('Tipo de dato no soportado');
+                    throw new Error_('Tipo de dato no soportado', node.location.start.line, node.location.start.column, 'Semantico');
             }
         } else {
 
@@ -474,8 +475,9 @@ export class InterpreterVisitor extends BaseVisitor {
         // tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { tipo, id, exp }) }
 
             // Verificar si el tipo de dato de la asignación y del dato primitivo son iguales
-            if (valorVariable.tipo !== tipoVariable) {
-                throw new Error('Tipo de dato incorrecto en la asignación');
+            if ((valorVariable.tipo !== tipoVariable) && (tipoVariable !== 'var')) {
+                this.entornoActual.set(nombreVariable, { valor: null, tipo: 'error' });
+                throw new Error_(`Tipo de dato incorrecto en la asignación: ${valorVariable.valor} no es de tipo ${tipoVariable}`, node.location.start.line, node.exp.location.start.column, 'Semantico');
             }
 
             this.entornoActual.set(nombreVariable, valorVariable);
@@ -515,7 +517,7 @@ export class InterpreterVisitor extends BaseVisitor {
                         arreglo.push({ valor: '\u0000', tipo: 'char' });
                         break;
                     default:
-                        throw new Error('Tipo de dato no soportado');
+                        throw new Error_('Tipo de dato no soportado', node.location.start.line, node.location.start.column, 'Semantico');
                 }
             }
             this.entornoActual.set(id, { valor: arreglo, tipo: tipoArreglo });
@@ -537,7 +539,7 @@ export class InterpreterVisitor extends BaseVisitor {
 
         exp.forEach(e => {
             if (e.tipo !== tipoArreglo.slice(0, -2)) {
-                throw new Error(`Tipo de dato incorrecto en la asignación: el elemento ${e.valor} no es de tipo ${tipoArreglo.slice(0, -2)}`);
+                throw new Error_(`Tipo de dato incorrecto en la asignación: el elemento ${e.valor} no es de tipo ${tipoArreglo.slice(0, -2)}`, node.location.start.line, e.location.start.column, 'Semantico');
             }
         })
 
@@ -565,18 +567,15 @@ export class InterpreterVisitor extends BaseVisitor {
          * @type { BaseVisitor['visitPrimitivo']}
          */
         const index = node.num.accept(this);
-        // console.log(id);
-        // console.log(index);
 
         const arreglo = this.entornoActual.get(id);
-        // console.log(arreglo);
 
         if (index.tipo !== 'int') {
-            throw new Error('El índice debe ser de tipo entero');
+            throw new Error_('El índice debe ser de tipo entero', node.location.start.line, node.num.location.start.column, 'Semantico');
         }
 
         if (index.valor < 0 || index.valor >= arreglo.length) {
-            throw new Error('Índice fuera de rango');
+            throw new Error_('Índice fuera de rango', node.location.start.line, node.num.location.start.column, 'Semantico');
         }
 
         // console.log(arreglo.valor[index.valor]);
@@ -596,10 +595,10 @@ export class InterpreterVisitor extends BaseVisitor {
          */
         const valor = node.exp.accept(this);
 
-        // if (valor.tipo === 'float') {
-        //     this.salida += valor.valor.toFixed(4) + '\n';
-        //     return;
-        // }
+        if (valor.tipo === 'float') {
+            this.salida += valor.valor.toFixed(4) + '\n';
+            return;
+        }
 
         if (valor.valor instanceof Array) {
             const arrayPrint = []
@@ -624,29 +623,17 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitAsignacion'] }
      */
     visitAsignacion(node) {
-        
-        // console.log('Nodo', node);
-
         const valor = node.asgn.accept(this);
-        // console.log('Valor a asignar', valor);
 
         // En caso que num sea un número, se trata de una asignación a un elemento de un arreglo
         if (node.index !== undefined) {
             const index = node.index.accept(this);
             const arreglo = this.entornoActual.get(node.id);
-            
-            // console.log('Índice', index);
-            // console.log('Arreglo', arreglo);
-            // console.log('Posición a cambiar', arreglo.valor[index.valor]);
-            // console.log('Valor', valor);
-            // arreglo.valor[index.valor] = valor;
 
             const nuevoArreglo = arreglo.valor.map((v, i) => {
 
-                // console.log('V', v);
-
                 if (v.tipo !== valor.tipo) {
-                    throw new Error(`Tipo de dato incorrecto en la asignación: el elemento ${v.valor} no es de tipo ${valor.tipo}`);
+                    throw new Error_(`Tipo de dato incorrecto en la asignación: el elemento ${v.valor} no es de tipo ${valor.tipo}`, node.location.start.line, node.asgn.location.start.column, 'Semantico');
                 }
                 
                 if (i === index.valor) {
@@ -654,15 +641,18 @@ export class InterpreterVisitor extends BaseVisitor {
                 }
 
                 return v;
-            })
-
-            // console.log('Nuevo arreglo', nuevoArreglo);
+            });
             
             this.entornoActual.assign(node.id, nuevoArreglo);
             return valor;
         }
-        
-        // console.log('ID', node.id);
+
+        const valorActual = this.entornoActual.get(node.id);
+        if (valorActual.tipo !== valor.tipo) {
+            this.entornoActual.assign(node.id, { valor: null, tipo: 'error' } );
+
+            throw new Error_(`Tipo de dato incorrecto en la asignación: ${valor.valor} no es de tipo ${valorActual.tipo}`, node.location.start.line, node.asgn.location.start.column, 'Semantico');
+        }
 
         this.entornoActual.assign(node.id, valor);
         return valor;
@@ -690,7 +680,7 @@ export class InterpreterVisitor extends BaseVisitor {
         const condicion = node.cond.accept(this);
 
         if (condicion.tipo !== 'boolean') {
-            throw new Error('La condición no es booleana');
+            throw new Error_('La condición no es booleana', node.location.start.line, node.cond.location.start.column, 'Semantico');
         }
 
         if (condicion.valor === true) {
@@ -721,7 +711,7 @@ export class InterpreterVisitor extends BaseVisitor {
             const valorCase = caso.cond.accept(this);
 
             if (expresion.tipo !== valorCase.tipo) {
-                throw new Error('Los tipos no coinciden');
+                throw new Error_('Los tipos de la expresión y el case no coinciden', node.exp.location.start.line, node.exp.location.start.column, 'Semantico');
             }
 
             if (expresion.valor === valorCase.valor) {
@@ -755,7 +745,7 @@ export class InterpreterVisitor extends BaseVisitor {
         const condicionCase = node.cond.accept(this);
 
         if (condicionCase.tipo !== 'boolean') {
-            throw new Error('La condición no es booleana');
+            throw new Error_('La condición no es booleana', node.cond.location.start.line, node.cond.location.start.column, 'Semantico');
         }
 
         if (condicionCase.valor === true) {
@@ -768,7 +758,7 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitDefaultCase']}
      */
     visitDefaultCase(node) {
-        const declaraciones = node.dcls.map(dcl => dcl.accept(this));
+        node.dcls.map(dcl => dcl.accept(this));
     }
 
     /**
@@ -867,11 +857,11 @@ export class InterpreterVisitor extends BaseVisitor {
         const argumentos = node.args.map(arg => arg.accept(this));
 
         if (!(funcion instanceof Invocable)) {
-            throw new Error('No es invocable');
+            throw new Error_('No es invocable', node.callee.location.start.line, node.callee.location.start.column, 'Semantico');
         }
 
         if (funcion.aridad() !== argumentos.length) {
-            throw new Error('Aridad incorrecta');
+            throw new Error_('Aridad incorrecta', node.args[0].location.start.line, node.args[0].location.start.column, 'Semantico');
         }
 
         return funcion.invocar(this, argumentos);
