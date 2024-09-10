@@ -59,7 +59,7 @@ btn.addEventListener('click', () => {
 
     } catch (error) {
         console.log("Error: ", JSON.stringify(error, null, 4));
-        console.log(error.message);
+        console.log(error);
         // output.innerHTML = error.message;
     }
 

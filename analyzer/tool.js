@@ -501,6 +501,34 @@ const configuracionNodos = [
             }
         ]
     },
+    // FuncArray
+    // (".indexOf(" _ expIndex:Expresion _ ")" { return { expIndex, tipo:'indexOf' } }) /
+    //     (".join()" { return { tipo:'join' } }) /
+    //     (".length" { return { tipo:'length' } }) /
+    // else if (tipo === 'indexOf' || tipo === 'join' || tipo === 'length') {
+    //                    return crearNodo('FuncArray', { objetivo, tipo, expIndex });
+    //               }
+    {
+        name: 'FuncArray',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'arr',
+                type: 'Expresion',
+                description: 'Referencia al arreglo unidimensional'
+            },
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de la funcion'
+            },
+            {
+                name: 'index',
+                type: 'Expresion|undefined',
+                description: 'Expresion del indice'
+            }
+        ]
+    },
 ]
 
 let code = ''

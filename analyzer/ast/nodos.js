@@ -887,4 +887,45 @@ export class Get extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase, Instancia, Get }
+export class FuncArray extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.arr Referencia al arreglo unidimensional
+ * @param {string} options.tipo Tipo de la funcion
+ * @param {Expresion|undefined} options.index Expresion del indice
+    */
+    constructor({ arr, tipo, index }) {
+        super();
+        
+        /**
+         * Referencia al arreglo unidimensional
+         * @type {Expresion}
+        */
+        this.arr = arr;
+
+
+        /**
+         * Tipo de la funcion
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Expresion del indice
+         * @type {Expresion|undefined}
+        */
+        this.index = index;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitFuncArray(this);
+    }
+}
+    
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase, Instancia, Get, FuncArray }

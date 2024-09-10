@@ -575,9 +575,9 @@ export class InterpreterVisitor extends BaseVisitor {
         if (index.tipo !== 'int') {
             throw new Error_('El índice debe ser de tipo entero', node.location.start.line, node.num.location.start.column, 'Semantico');
         }
-
-        if (index.valor < 0 || index.valor >= arreglo.length) {
-            throw new Error_('Índice fuera de rango', node.location.start.line, node.num.location.start.column, 'Semantico');
+        
+        if (index.valor < 0 || index.valor >= arreglo.valor.length) {
+            throw new Error_(`Índice ${index.valor} fuera de rango, el arreglo '${node.id}' tiene únicamente ${arreglo.valor.length} elementos   `, node.location.start.line, node.num.location.start.column, 'Semantico');
         }
 
         // console.log(arreglo.valor[index.valor]);
@@ -589,6 +589,35 @@ export class InterpreterVisitor extends BaseVisitor {
     }
     
     /**
+     * @type { BaseVisitor['visitFuncArray'] }
+     */
+    visitFuncArray(node) {
+        const arreglo = node.arr.accept(this);
+        const tipo = node.tipo;
+
+        if (tipo === 'indexOf') {
+            const index = node.index.accept(this);
+            for (let i = 0; i < arreglo.valor.length; i++) {
+                if (arreglo.valor[i].valor === index.valor) {
+                    return { valor: i, tipo: 'int' };
+                }
+            }
+            return { valor: -1, tipo: 'int' };  
+        }
+
+        if (tipo === 'length') {
+            return { valor: arreglo.valor.length, tipo: 'int' };
+        }
+
+        if (tipo === 'join') {
+            const arregloJoin = arreglo.valor.map((v) => {
+                return v.valor;
+            });
+            return { valor: arregloJoin.toString(), tipo: 'string' };
+        }
+    }
+
+    /**
      * @type { BaseVisitor['visitPrint'] }
      */
     visitPrint(node) {
@@ -597,6 +626,10 @@ export class InterpreterVisitor extends BaseVisitor {
              * @type { BaseVisitor['visitExpresion'] }
              */
             const valor = exp.accept(this);
+
+            if (valor === undefined) {
+                return;
+            }
 
             if (valor.tipo === 'float') {
                 this.salida += valor.valor.toFixed(4) + '\n';
@@ -612,8 +645,10 @@ export class InterpreterVisitor extends BaseVisitor {
                 return;
             }
 
-            this.salida += valor.valor + '\n';
+            this.salida += valor.valor;
         });
+
+        this.salida += '\n';
     }
     
     /**

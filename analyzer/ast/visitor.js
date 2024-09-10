@@ -81,6 +81,9 @@
 
  * @typedef {import('./nodos').Get} Get
 
+
+ * @typedef {import('./nodos').FuncArray} FuncArray
+
  */
 
 
@@ -331,6 +334,15 @@ export class BaseVisitor {
      */
     visitGet(node) {
         throw new Error('Metodo visitGet no implementado');
+    }
+    
+
+    /**
+     * @param {FuncArray} node
+     * @returns {any}
+     */
+    visitFuncArray(node) {
+        throw new Error('Metodo visitFuncArray no implementado');
     }
     
 }

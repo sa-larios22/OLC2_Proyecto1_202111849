@@ -27,7 +27,8 @@
                'DeclaracionFuncion': nodos.DeclaracionFuncion,
                'DeclaracionClase': nodos.DeclaracionClase,
                'Instancia': nodos.Instancia,
-               'Get': nodos.Get
+               'Get': nodos.Get,
+               'FuncArray': nodos.FuncArray
           }
 
           const nodo = new tipos[tipoNodo](propiedades);
@@ -50,7 +51,7 @@ declaracionVariable = tipo:("int" / "float" / "string" / "boolean" / "char" / "v
 declaracionArray = tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "{" _ exp:arrayValores _ "}" _ ";" { return crearNodo('DeclaracionArray', { tipo, id, exp }) }
                / tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "new" _ tipoArray:("int" / "float" / "string" / "boolean" / "char") _ "[" _ exp:Expresion _ "]" _ ";" {
                     if (tipo.slice(0,-2) !== tipoArray) {
-                         throw new Error(`Error: No se puede asignar un array de tipo ${tipoArray} a un array de tipo ${tipo}`);
+                         throw new Error(`Los tipos deben ser iguales`);
                     }
                     return crearNodo('DeclaracionArray', { tipo, id, exp })
                }
@@ -80,6 +81,9 @@ Stmt = "print(" _ expList:ExpresionListPrint _ ")" _ ";" { return crearNodo('Pri
      / "while" _ "(" _ cond:Expresion _ ")" _ stmt:Stmt { return crearNodo('While', { cond, stmt }) }
      / "for" _ "(" _ init:ForInit _ cond:Expresion _ ";" _ inc:Expresion _ ")" _ stmt:Stmt {
           return crearNodo('For', { init, cond, inc, stmt })
+     }
+     / "for" _ "(" _ tipo:("int" / "float" / "string" / "boolean" / "char") _ id:Identificador _ ":" _ arr:Expresion _ ")" _ stmt:Stmt {
+          return crearNodo('ForEach', { tipo, id, arr, stmt })
      }
      / "break" _ ";" { return crearNodo('Break') }
      / "continue" _ ";" { return crearNodo('Continue') }
@@ -200,20 +204,25 @@ Llamada = objetivoInicial:Numero _
 
      operaciones:(
           ("(" args:Argumentos? ")" { return { args, tipo:'funcCall'} }) /
+          (".indexOf(" _ index:Expresion _ ")" { return { index, tipo:'indexOf' } }) /
+          (".join()" { return { tipo:'join' } }) /
+          (".length" { return { tipo:'length' } }) /
           ("." id:Identificador { return { id, tipo:'get' } })
      
      )* {
 
           return operaciones.reduce(
                (objetivo, args) => {
-                    // return crearNodo('Llamada', { callee, args: args || [] });
-
-                    const { tipo, id, args:argumentos } = args;
+                    const { tipo, id, args:argumentos, index } = args;
 
                     if (tipo === 'funcCall') {
                          return crearNodo('Llamada', { callee: objetivo, args: argumentos || [] });
                     } else if (tipo === 'get') {
                          return crearNodo('Get', { objetivo, propiedad:id });
+                    } else if (tipo === 'indexOf') {
+                         return crearNodo('FuncArray', { arr:objetivo, tipo, index });
+                    } else if (tipo === 'join' || tipo === 'length') {
+                         return crearNodo('FuncArray', { arr:objetivo, tipo });
                     }
                },
                objetivoInicial
