@@ -8,6 +8,7 @@ import { BaseVisitor } from './visitor.js';
 import { Error_ } from '../errors/error_.js';
 import { Clase } from '../instructions/clase.js';
 import { Instancia } from '../instructions/instancia.js';
+import { Struct } from '../instructions/struct.js';
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -23,7 +24,7 @@ export class InterpreterVisitor extends BaseVisitor {
         this.salida = '';
 
         /**
-         * @type { Expresion | null}
+         * @type { Expresion | null }
          */
         this.prevContinue = null;
     }
@@ -476,6 +477,25 @@ export class InterpreterVisitor extends BaseVisitor {
         // En caso de que sea la regla
         // tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { tipo, id, exp }) }
 
+            if ([ 'int', 'float', 'string', 'boolean', 'char', 'var' ].indexOf(tipoVariable) === -1) {
+                const struct = this.entornoActual.get(node.tipo);
+                if (!(struct instanceof Struct)) {
+                    throw new Error_(`No se ha encontrado la estructura ${node.tipo}`, node.location.start.line, node.location.start.column, 'Semantico');
+                }
+
+                if (!(valorVariable instanceof Instancia)) {
+                    throw new Error_(`El valor asignado a la estructura ${node.tipo} no es una instancia`, node.location.start.line, node.location.start.column, 'Semantico');
+                }
+
+                if (valorVariable.clase !== struct) {
+                    throw new Error_(`La instancia asignada a la estructura ${node.tipo} no es de la misma clase`, node.location.start.line, node.location.start.column, 'Semantico');
+                }
+
+                this.entornoActual.set(nombreVariable, valorVariable);
+                return;
+            }
+                
+
             // Verificar si el tipo de dato de la asignación y del dato primitivo son iguales
             if ((valorVariable.tipo !== tipoVariable) && (tipoVariable !== 'var')) {
                 this.entornoActual.set(nombreVariable, { valor: null, tipo: 'error' });
@@ -651,6 +671,53 @@ export class InterpreterVisitor extends BaseVisitor {
         this.salida += '\n';
     }
     
+    /**
+     * @type { BaseVisitor['visitFuncionEmbedida'] }
+     */
+    visitFuncionEmbedida(node) {
+        const tipo = node.tipo;
+        const valor = node.exp.accept(this);
+
+        switch (tipo) {
+            case 'parseInt':
+                if (valor.tipo !== 'string') {
+                    throw new Error_('El argumento de parseInt debe ser de tipo string', node.location.start.line, node.exp.location.start.column, 'Semantico');
+                }
+
+                if (isNaN(parseInt(valor.valor))) {
+                    throw new Error_('No se puede convertir a entero', node.exp.location.start.line, node.exp.location.start.column, 'Semantico');
+                }
+
+                return { valor: parseInt(valor.valor), tipo: 'int' };
+            case 'parsefloat':
+                if (valor.tipo !== 'string') {
+                    throw new Error_('El argumento de parseFloat debe ser de tipo string', node.location.start.line, node.exp.location.start.column, 'Semantico');
+                }
+
+                if (isNaN(parseFloat(valor.valor))) {
+                    throw new Error_('No se puede convertir a flotante', node.exp.location.start.line, node.exp.location.start.column, 'Semantico');
+                }
+
+                return { valor: parseFloat(valor.valor), tipo: 'float' };
+            case 'toString':
+                return { valor: valor.valor.toString(), tipo: 'string' };
+            case 'toLowerCase':
+                if (valor.tipo !== 'string') {
+                    throw new Error_('El argumento de toLowerCase debe ser de tipo string', node.exp.location.start.line, node.exp.location.start.column, 'Semantico');
+                }
+
+                return { valor: valor.valor.toLowerCase(), tipo: 'string' };
+            case 'toUpperCase':
+                if (valor.tipo !== 'string') {
+                    throw new Error_('El argumento de toUpperCase debe ser de tipo string', node.exp.location.start.line, node.exp.location.start.column, 'Semantico');
+                }
+
+                return { valor: valor.valor.toUpperCase(), tipo: 'string' };
+            case 'typeof':
+                return { valor: valor.tipo, tipo: 'string' };
+        }
+    }
+
     /**
      * @type { BaseVisitor['visitExpresionStatement'] }
      */
@@ -915,6 +982,27 @@ export class InterpreterVisitor extends BaseVisitor {
     }
 
     /**
+     * @type { BaseVisitor['visitDeclaracionStruct'] }
+     */
+    visitDeclaracionStruct(node) {
+        const propiedades = {};
+        const nombre = node.id;
+
+        /**
+         * @type {Expresion[]} atributos
+         */
+        const atributos = node.atbs;
+
+        atributos.forEach(atb => {
+            propiedades[atb.id] = atb.tipo;
+        });
+
+        const struct = new Struct(nombre, propiedades);
+
+        this.entornoActual.set(nombre, struct);
+    }
+
+    /**
      * @type { BaseVisitor['visitDeclaracionClase'] }
      */
     visitDeclaracionClase(node) {
@@ -938,13 +1026,17 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitInstancia'] }
      */
     visitInstancia(node) {
-        const clase = this.entornoActual.get(node.id);
+        const invocable = this.entornoActual.get(node.id);
 
-        if (!(clase instanceof Clase)) {
+        if (!(invocable instanceof Clase)) {
             throw new Error_('No es una clase', node.location.start.line, node.location.start.column, 'Semantico');
         }
 
-        return clase.invocar(this, node.args);
+        // if (!(invocable instanceof Struct)) {
+        //     throw new Error_('No es una estructura', node.location.start.line, node.location.start.column, 'Semantico');
+        // }
+
+        return invocable.invocar(this, node.args);
     }
 
     /**

@@ -447,6 +447,25 @@ const configuracionNodos = [
             }
         ]
     },
+    // Structs
+    // declaracionStruct = "struct" _ id:Identificador _ "{" _ atbs:Atributos* _ "}" { return crearNodo('DeclaracionStruct', { id, atbs }) }
+    // Atributos = tipo:("int" / "float" / "string" / "boolean" / "char") _ id:Identificador _ ";" { return { tipo, id } }
+    {
+        name: 'DeclaracionStruct',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la estructura'
+            },
+            {
+                name: 'atbs',
+                type: 'Expresion[]',
+                description: 'Atributos de la estructura'
+            }
+        ]
+    },
     // Clases
     // declaracionClase = "class" _ id:Identificador _ "{" _ dcls:ClassBody _ "}" { return crearNodo('DeclaracionClase', { id, dcls }) }
     {
@@ -529,6 +548,29 @@ const configuracionNodos = [
             }
         ]
     },
+    // FuncionesEmbedidas
+    // FuncionesEmbedidas = "parseInt" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'parseInt', exp } ) }
+    // / "parsefloat" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'parseFloat', exp } ) }
+    // / "toString" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'toString', exp } ) }
+    // / "toLowerCase" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'toLowerCase', exp } ) }
+    // / "toUpperCase" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'toUpperCase', exp } ) }
+    // / "typeof" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'typeof', exp } ) }
+    {
+        name: 'FuncionEmbedida',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de la funcion'
+            },
+            {
+                name: 'exp',
+                type: 'Expresion',
+                description: 'Expresion de la funcion'
+            }
+        ]
+    }
 ]
 
 let code = ''

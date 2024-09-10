@@ -788,6 +788,39 @@ export class DeclaracionFuncion extends Expresion {
     }
 }
     
+export class DeclaracionStruct extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la estructura
+ * @param {Expresion[]} options.atbs Atributos de la estructura
+    */
+    constructor({ id, atbs }) {
+        super();
+        
+        /**
+         * Identificador de la estructura
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Atributos de la estructura
+         * @type {Expresion[]}
+        */
+        this.atbs = atbs;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionStruct(this);
+    }
+}
+    
 export class DeclaracionClase extends Expresion {
 
     /**
@@ -928,4 +961,37 @@ export class FuncArray extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase, Instancia, Get, FuncArray }
+export class FuncionEmbedida extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de la funcion
+ * @param {Expresion} options.exp Expresion de la funcion
+    */
+    constructor({ tipo, exp }) {
+        super();
+        
+        /**
+         * Tipo de la funcion
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Expresion de la funcion
+         * @type {Expresion}
+        */
+        this.exp = exp;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitFuncionEmbedida(this);
+    }
+}
+    
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionStruct, DeclaracionClase, Instancia, Get, FuncArray, FuncionEmbedida }

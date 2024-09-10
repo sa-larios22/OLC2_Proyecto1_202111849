@@ -9,5 +9,8 @@ class NativeFunc extends Invocable {
 }
 
 export const embededFunctions = {
-    'time': new NativeFunc(() => 0, () => new Date().toISOString())
+    'time': new NativeFunc(() => 0, () => {
+        const valor = new Date().toISOString();
+        return { valor:valor, tipo: 'string'};
+    })
 }

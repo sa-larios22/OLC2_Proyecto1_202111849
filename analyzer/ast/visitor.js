@@ -73,6 +73,9 @@
  * @typedef {import('./nodos').DeclaracionFuncion} DeclaracionFuncion
 
 
+ * @typedef {import('./nodos').DeclaracionStruct} DeclaracionStruct
+
+
  * @typedef {import('./nodos').DeclaracionClase} DeclaracionClase
 
 
@@ -83,6 +86,9 @@
 
 
  * @typedef {import('./nodos').FuncArray} FuncArray
+
+
+ * @typedef {import('./nodos').FuncionEmbedida} FuncionEmbedida
 
  */
 
@@ -311,6 +317,15 @@ export class BaseVisitor {
     
 
     /**
+     * @param {DeclaracionStruct} node
+     * @returns {any}
+     */
+    visitDeclaracionStruct(node) {
+        throw new Error('Metodo visitDeclaracionStruct no implementado');
+    }
+    
+
+    /**
      * @param {DeclaracionClase} node
      * @returns {any}
      */
@@ -343,6 +358,15 @@ export class BaseVisitor {
      */
     visitFuncArray(node) {
         throw new Error('Metodo visitFuncArray no implementado');
+    }
+    
+
+    /**
+     * @param {FuncionEmbedida} node
+     * @returns {any}
+     */
+    visitFuncionEmbedida(node) {
+        throw new Error('Metodo visitFuncionEmbedida no implementado');
     }
     
 }

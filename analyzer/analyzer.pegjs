@@ -25,10 +25,12 @@
                'Return': nodos.Return,
                'Llamada': nodos.Llamada,
                'DeclaracionFuncion': nodos.DeclaracionFuncion,
+               'DeclaracionStruct': nodos.DeclaracionStruct,
                'DeclaracionClase': nodos.DeclaracionClase,
                'Instancia': nodos.Instancia,
                'Get': nodos.Get,
-               'FuncArray': nodos.FuncArray
+               'FuncArray': nodos.FuncArray,
+               'FuncionEmbedida': nodos.FuncionEmbedida
           }
 
           const nodo = new tipos[tipoNodo](propiedades);
@@ -42,11 +44,12 @@ programa = _ dcl:Declaraciones* _ { return dcl }
 Declaraciones = dcl:declaracionVariable _ { return dcl }
                / dcl:declaracionArray _ { return dcl }
                / dcl:declaracionFuncion _ { return dcl }
+               / dcl:declaracionStruct _ { return dcl }
                / dcl:declaracionClase _ { return dcl }
                / stmt:Stmt _ { return stmt }
 
-declaracionVariable = tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { tipo, id, exp }) }
-                    / tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ ";" { return crearNodo('DeclaracionVariable', { tipo, id }) }
+declaracionVariable = tipo:("int" / "float" / "string" / "boolean" / "char" / "var" / Identificador) _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { tipo, id, exp }) }
+                    / tipo:("int" / "float" / "string" / "boolean" / "char" / "var" / Identificador) _ id:Identificador _ ";" { return crearNodo('DeclaracionVariable', { tipo, id }) }
 
 declaracionArray = tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "{" _ exp:arrayValores _ "}" _ ";" { return crearNodo('DeclaracionArray', { tipo, id, exp }) }
                / tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "new" _ tipoArray:("int" / "float" / "string" / "boolean" / "char") _ "[" _ exp:Expresion _ "]" _ ";" {
@@ -61,6 +64,10 @@ arrayValores = exp:Expresion _ valores:(_ "," _ exp_:Expresion { return exp_ } )
 
 declaracionFuncion = "function" _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('DeclaracionFuncion', { id, params: params || [], bloque })}
 
+declaracionStruct = "struct" _ id:Identificador _ "{" _ atbs:Atributos* _ "}" _ ";" { return crearNodo('DeclaracionStruct', { id, atbs }) }
+
+Atributos = tipo:("int" / "float" / "string" / "boolean" / "char") _ id:Identificador _ ";" _ { return { tipo, id } }
+
 declaracionClase = "class" _ id:Identificador _ "{" _ dcls:ClassBody* _ "}" { return crearNodo('DeclaracionClase', { id, dcls }) }
 
 ClassBody = dcl:declaracionVariable _ { return dcl }
@@ -69,6 +76,7 @@ ClassBody = dcl:declaracionVariable _ { return dcl }
 Parametros = id:Identificador _ params:("," _ ids:Identificador { return ids })* { return [id, ...params] }
 
 Stmt = "print(" _ expList:ExpresionListPrint _ ")" _ ";" { return crearNodo('Print', { expList } ) }
+     / "System.out.println(" _ expList:ExpresionListPrint _ ")" _ ";" { return crearNodo('Print', { expList } ) }
      / bloque:Bloque { return bloque }
      / "if" _ "(" _ cond:Expresion _ ")" _ stmtTrue:Stmt
           stmtFalse:(
@@ -238,8 +246,21 @@ Numero = [0-9]+( "." [0-9]+ )+ { return crearNodo('Primitivo', { valor: parseFlo
      / char_:Char_ { return char_ }
      / "(" exp:Expresion ")" { return crearNodo('Parentesis', { exp }) }
      / "new" _ id:Identificador _ "(" _ args:Argumentos? _ ")" { return crearNodo('Instancia', { id, args: args || [] })}
+     / fnc:FuncionesEmbedidas { return fnc } 
+     / id:Identificador _ "{" _ props:propiedadesDclStruct _ "}" { return crearNodo('Instancia', { id, args:props }) }
      / id:Identificador _ "[" _ num:Numero _ "]" { return crearNodo('ReferenciaArray', { id, num } ); }
      / Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
+
+propiedadesDclStruct = prop:propiedadDclStruct _ props:( "," _ prop_:propiedadDclStruct { return prop_ } )* { return [prop, ...props] }
+
+propiedadDclStruct = id:Identificador _ ":" _ exp:Expresion { return { id, exp } }
+
+FuncionesEmbedidas = "parseInt" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'parseInt', exp } ) }
+                    / "parsefloat" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'parsefloat', exp } ) }
+                    / "toString" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'toString', exp } ) }
+                    / "toLowerCase" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'toLowerCase', exp } ) }
+                    / "toUpperCase" _ "(" _ exp:Expresion _ ")" { return crearNodo('FuncionEmbedida', { tipo:'toUpperCase', exp } ) }
+                    / "typeof" _ exp:Expresion _ { return crearNodo('FuncionEmbedida', { tipo:'typeof', exp } ) }
 
 String_ = "\"" texto:( ( "\\\\" / "\\\"" / "\\n" / "\\r" / "\\t" / [^\\"] )* ) "\"" {
     return crearNodo('Primitivo', { 
