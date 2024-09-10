@@ -15,9 +15,13 @@ export class Entorno {
      * @param {any} valor
      */
     set(nombre, valor) {
-        this.valores[nombre] = valor;
-        // console.log('post-set', this.valores);
-    }
+            if (this.valores.hasOwnProperty(nombre)) {
+                throw new Error_(`El valor ${nombre} ya ha sido asignado en este entorno`, 0, 0, 'Semántico');
+            }
+    
+            this.valores[nombre] = valor;
+            // console.log('post-set', this.valores);
+        }
 
     /**
      * @param {string} nombre

@@ -6,6 +6,8 @@ import { Entorno } from './entorno.js';
 import nodos, { Expresion, Primitivo, ReferenciaVariable } from './nodos.js';
 import { BaseVisitor } from './visitor.js';
 import { Error_ } from '../errors/error_.js';
+import { Clase } from '../instructions/clase.js';
+import { Instancia } from '../instructions/instancia.js';
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -590,26 +592,28 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitPrint'] }
      */
     visitPrint(node) {
-        /**
-         * @type { BaseVisitor['visitExpresion'] }
-         */
-        const valor = node.exp.accept(this);
+        node.expList.forEach(exp => {
+            /**
+             * @type { BaseVisitor['visitExpresion'] }
+             */
+            const valor = exp.accept(this);
 
-        if (valor.tipo === 'float') {
-            this.salida += valor.valor.toFixed(4) + '\n';
-            return;
-        }
+            if (valor.tipo === 'float') {
+                this.salida += valor.valor.toFixed(4) + '\n';
+                return;
+            }
 
-        if (valor.valor instanceof Array) {
-            const arrayPrint = []
-            valor.valor.forEach((v) => {
-                arrayPrint.push(v.valor)
-            })
-            this.salida += arrayPrint + '\n';
-            return;
-        }
+            if (valor.valor instanceof Array) {
+                const arrayPrint = []
+                valor.valor.forEach((v) => {
+                    arrayPrint.push(v.valor)
+                })
+                this.salida += arrayPrint + '\n';
+                return;
+            }
 
-        this.salida += valor.valor + '\n';
+            this.salida += valor.valor + '\n';
+        });
     }
     
     /**
@@ -873,5 +877,54 @@ export class InterpreterVisitor extends BaseVisitor {
     visitDeclaracionFuncion(node) {
         const funcion = new FuncionForanea(node, this.entornoActual);
         this.entornoActual.set(node.id, funcion);
+    }
+
+    /**
+     * @type { BaseVisitor['visitDeclaracionClase'] }
+     */
+    visitDeclaracionClase(node) {
+        const metodos = {};
+        const propiedades = {};
+
+        node.dcls.forEach(dcl => {
+            if (dcl instanceof nodos.DeclaracionFuncion) {
+                metodos[dcl.id] = new FuncionForanea(dcl, this.entornoActual);
+            } else if (dcl instanceof nodos.DeclaracionVariable) {
+                propiedades[dcl.id] = dcl.exp;
+            }
+        });
+
+        const clase = new Clase(node.id, propiedades, metodos);
+
+        this.entornoActual.set(node.id, clase);
+    }
+
+    /**
+     * @type { BaseVisitor['visitInstancia'] }
+     */
+    visitInstancia(node) {
+        const clase = this.entornoActual.get(node.id);
+
+        if (!(clase instanceof Clase)) {
+            throw new Error_('No es una clase', node.location.start.line, node.location.start.column, 'Semantico');
+        }
+
+        return clase.invocar(this, node.args);
+    }
+
+    /**
+     * @type { BaseVisitor['visitGet'] }
+     */
+    visitGet(node) {
+        /**
+         * @type { Instancia}
+         */
+        const instancia = node.objetivo.accept(this);
+
+        if (!(instancia instanceof Instancia)) {
+            throw new Error_('No es una instancia', node.location.start.line, node.location.start.column, 'Semantico');
+        }
+
+        return instancia.get(node.propiedad);
     }
 }

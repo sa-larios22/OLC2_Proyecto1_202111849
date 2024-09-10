@@ -41,7 +41,7 @@ btn.addEventListener('click', () => {
         // Creamos una instancia del visitante de interpretación
         const interprete = new InterpreterVisitor();
 
-        console.log( "Sentencias:", { sentencias } );
+        console.log({ sentencias } );
 
         sentencias.forEach(sentencia => {
             try {

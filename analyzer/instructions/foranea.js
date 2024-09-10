@@ -49,4 +49,12 @@ export class FuncionForanea extends Invocable {
         interprete.entornoActual = entornoAnterior;
         return null;
     }
+
+    atar(instancia) {
+        const entornoOculto = new Entorno(this.clousure);
+
+        entornoOculto.set('this', instancia);
+
+        return new FuncionForanea(this.nodo, entornoOculto);
+    }
 }

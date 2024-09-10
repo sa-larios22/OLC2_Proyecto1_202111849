@@ -75,6 +75,12 @@
 
  * @typedef {import('./nodos').DeclaracionClase} DeclaracionClase
 
+
+ * @typedef {import('./nodos').Instancia} Instancia
+
+
+ * @typedef {import('./nodos').Get} Get
+
  */
 
 
@@ -307,6 +313,24 @@ export class BaseVisitor {
      */
     visitDeclaracionClase(node) {
         throw new Error('Metodo visitDeclaracionClase no implementado');
+    }
+    
+
+    /**
+     * @param {Instancia} node
+     * @returns {any}
+     */
+    visitInstancia(node) {
+        throw new Error('Metodo visitInstancia no implementado');
+    }
+    
+
+    /**
+     * @param {Get} node
+     * @returns {any}
+     */
+    visitGet(node) {
+        throw new Error('Metodo visitGet no implementado');
     }
     
 }

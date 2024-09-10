@@ -317,16 +317,16 @@ export class Print extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {Expresion} options.exp Expresion a imprimir
+    * @param {Expresion[]} options.expList Expresion a imprimir
     */
-    constructor({ exp }) {
+    constructor({ expList }) {
         super();
         
         /**
          * Expresion a imprimir
-         * @type {Expresion}
+         * @type {Expresion[]}
         */
-        this.exp = exp;
+        this.expList = expList;
 
     }
 
@@ -821,4 +821,70 @@ export class DeclaracionClase extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase }
+export class Instancia extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la clase
+ * @param {Expresion[]} options.args Argumentos de la instancia
+    */
+    constructor({ id, args }) {
+        super();
+        
+        /**
+         * Identificador de la clase
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Argumentos de la instancia
+         * @type {Expresion[]}
+        */
+        this.args = args;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitInstancia(this);
+    }
+}
+    
+export class Get extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.objetivo Objeto de la propiedad
+ * @param {string} options.propiedad Identificador de la propiedad
+    */
+    constructor({ objetivo, propiedad }) {
+        super();
+        
+        /**
+         * Objeto de la propiedad
+         * @type {Expresion}
+        */
+        this.objetivo = objetivo;
+
+
+        /**
+         * Identificador de la propiedad
+         * @type {string}
+        */
+        this.propiedad = propiedad;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitGet(this);
+    }
+}
+    
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionClase, Instancia, Get }

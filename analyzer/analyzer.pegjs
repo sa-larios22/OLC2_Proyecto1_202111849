@@ -25,7 +25,9 @@
                'Return': nodos.Return,
                'Llamada': nodos.Llamada,
                'DeclaracionFuncion': nodos.DeclaracionFuncion,
-               'DeclaracionClase': nodos.DeclaracionClase
+               'DeclaracionClase': nodos.DeclaracionClase,
+               'Instancia': nodos.Instancia,
+               'Get': nodos.Get
           }
 
           const nodo = new tipos[tipoNodo](propiedades);
@@ -39,6 +41,7 @@ programa = _ dcl:Declaraciones* _ { return dcl }
 Declaraciones = dcl:declaracionVariable _ { return dcl }
                / dcl:declaracionArray _ { return dcl }
                / dcl:declaracionFuncion _ { return dcl }
+               / dcl:declaracionClase _ { return dcl }
                / stmt:Stmt _ { return stmt }
 
 declaracionVariable = tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { tipo, id, exp }) }
@@ -57,14 +60,14 @@ arrayValores = exp:Expresion _ valores:(_ "," _ exp_:Expresion { return exp_ } )
 
 declaracionFuncion = "function" _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('DeclaracionFuncion', { id, params: params || [], bloque })}
 
-declaracionClase = "class" _ id:Identificador _ "{" _ dcls:ClassBody _ "}" { return crearNodo('DeclaracionClase', { id, dcls }) }
+declaracionClase = "class" _ id:Identificador _ "{" _ dcls:ClassBody* _ "}" { return crearNodo('DeclaracionClase', { id, dcls }) }
 
 ClassBody = dcl:declaracionVariable _ { return dcl }
           / dcl:declaracionFuncion _ { return dcl }
 
 Parametros = id:Identificador _ params:("," _ ids:Identificador { return ids })* { return [id, ...params] }
 
-Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('Print', { exp } ) }
+Stmt = "print(" _ expList:ExpresionListPrint _ ")" _ ";" { return crearNodo('Print', { expList } ) }
      / bloque:Bloque { return bloque }
      / "if" _ "(" _ cond:Expresion _ ")" _ stmtTrue:Stmt
           stmtFalse:(
@@ -82,6 +85,8 @@ Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('Print', { exp } 
      / "continue" _ ";" { return crearNodo('Continue') }
      / "return" _ exp:Expresion? _ ";" { return crearNodo('Return', { exp }) }
      / exp:Expresion _ ";" { return crearNodo('ExpresionStatement', { exp } ) }
+
+ExpresionListPrint = exp:Expresion _ exps:("," _ exp_:Expresion { return exp_ } )* { return [exp, ...exps] }
 
 Bloque = "{" _ dcls:Declaraciones* _ "}" { return crearNodo('Bloque', { dcls }) }
 
@@ -191,12 +196,27 @@ Multiplicacion = izq:Unaria expansion:( _ op:("*" / "/" / "%") _ der:Unaria { re
 Unaria = op:("!" / "-") _ exp:Unaria { return crearNodo('Unaria', { op, exp }) }
      / Llamada
 
-Llamada = callee:Numero _ params:("(" args:Argumentos? ")" { return args } )* {
-     return params.reduce(
-          (callee, args) => {
-               return crearNodo('Llamada', { callee, args: args || [] });
-          },
-          callee
+Llamada = objetivoInicial:Numero _
+
+     operaciones:(
+          ("(" args:Argumentos? ")" { return { args, tipo:'funcCall'} }) /
+          ("." id:Identificador { return { id, tipo:'get' } })
+     
+     )* {
+
+          return operaciones.reduce(
+               (objetivo, args) => {
+                    // return crearNodo('Llamada', { callee, args: args || [] });
+
+                    const { tipo, id, args:argumentos } = args;
+
+                    if (tipo === 'funcCall') {
+                         return crearNodo('Llamada', { callee: objetivo, args: argumentos || [] });
+                    } else if (tipo === 'get') {
+                         return crearNodo('Get', { objetivo, propiedad:id });
+                    }
+               },
+               objetivoInicial
      );
 }
 
@@ -208,6 +228,7 @@ Numero = [0-9]+( "." [0-9]+ )+ { return crearNodo('Primitivo', { valor: parseFlo
      / boolean_:Boolean_ { return boolean_ }
      / char_:Char_ { return char_ }
      / "(" exp:Expresion ")" { return crearNodo('Parentesis', { exp }) }
+     / "new" _ id:Identificador _ "(" _ args:Argumentos? _ ")" { return crearNodo('Instancia', { id, args: args || [] })}
      / id:Identificador _ "[" _ num:Numero _ "]" { return crearNodo('ReferenciaArray', { id, num } ); }
      / Identificador { return crearNodo('ReferenciaVariable', { id: text() }) }
 

@@ -197,8 +197,8 @@ const configuracionNodos = [
         extends: 'Expresion',
         props: [
             {
-                name: 'exp',
-                type: 'Expresion',
+                name: 'expList',
+                type: 'Expresion[]',
                 description: 'Expresion a imprimir'
             }
         ]
@@ -462,6 +462,42 @@ const configuracionNodos = [
                 name: 'dcls',
                 type: 'Expresion[]',
                 description: 'Cuerpo de la clase'
+            }
+        ]
+    },
+    // Instancias
+    // "new" _ id:Identificador _ "(" _ Argumentos? _ ")" { return crearNodo('Instancia', { id, args: args || [] })}
+    {
+        name: 'Instancia',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la clase'
+            },
+            {
+                name: 'args',
+                type: 'Expresion[]',
+                description: 'Argumentos de la instancia'
+            }
+        ]
+    },
+    // Get
+    // return crearNodo('Get', { objetivo, propiedad:id });
+    {
+        name: 'Get',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'objetivo',
+                type: 'Expresion',
+                description: 'Objeto de la propiedad'
+            },
+            {
+                name: 'propiedad',
+                type: 'string',
+                description: 'Identificador de la propiedad'
             }
         ]
     },
