@@ -58,6 +58,9 @@
  * @typedef {import('./nodos').For} For
 
 
+ * @typedef {import('./nodos').ForEach} ForEach
+
+
  * @typedef {import('./nodos').Break} Break
 
 
@@ -268,6 +271,15 @@ export class BaseVisitor {
      */
     visitFor(node) {
         throw new Error('Metodo visitFor no implementado');
+    }
+    
+
+    /**
+     * @param {ForEach} node
+     * @returns {any}
+     */
+    visitForEach(node) {
+        throw new Error('Metodo visitForEach no implementado');
     }
     
 

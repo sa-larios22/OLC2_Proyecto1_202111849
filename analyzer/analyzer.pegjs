@@ -20,6 +20,7 @@
                'DefaultCase': nodos.DefaultCase,
                'While': nodos.While,
                'For': nodos.For,
+               'ForEach': nodos.ForEach,
                'Break': nodos.Break,
                'Continue': nodos.Continue,
                'Return': nodos.Return,
@@ -49,7 +50,7 @@ Declaraciones = dcl:declaracionVariable _ { return dcl }
                / stmt:Stmt _ { return stmt }
 
 declaracionVariable = tipo:("int" / "float" / "string" / "boolean" / "char" / "var" / Identificador) _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionVariable', { tipo, id, exp }) }
-                    / tipo:("int" / "float" / "string" / "boolean" / "char" / "var" / Identificador) _ id:Identificador _ ";" { return crearNodo('DeclaracionVariable', { tipo, id }) }
+                    / tipo:Tipo _ id:Identificador _ ";" { return crearNodo('DeclaracionVariable', { tipo, id }) }
 
 declaracionArray = tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "{" _ exp:arrayValores _ "}" _ ";" { return crearNodo('DeclaracionArray', { tipo, id, exp }) }
                / tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ "new" _ tipoArray:("int" / "float" / "string" / "boolean" / "char") _ "[" _ exp:Expresion _ "]" _ ";" {
@@ -60,9 +61,11 @@ declaracionArray = tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[
                }
                / tipo:("int[]" / "float[]" / "string[]" / "boolean[]" / "char[]") _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('DeclaracionArray', { tipo, id, exp }) }
 
+Tipo = "int" / "float" / "string" / "boolean" / "char" / "var" / !"return"Identificador { return text() }
+
 arrayValores = exp:Expresion _ valores:(_ "," _ exp_:Expresion { return exp_ } )* { return [exp, ...valores] }
 
-declaracionFuncion = "function" _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('DeclaracionFuncion', { id, params: params || [], bloque })}
+declaracionFuncion = tipoFunc:("int" / "float"/  "string" / "boolean" / "char" / "void") _ dims:("[]"+)? _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('DeclaracionFuncion', { tipoFunc, dims: dims || [], id, params: params || [], bloque })}
 
 declaracionStruct = "struct" _ id:Identificador _ "{" _ atbs:Atributos* _ "}" _ ";" { return crearNodo('DeclaracionStruct', { id, atbs }) }
 
@@ -73,7 +76,9 @@ declaracionClase = "class" _ id:Identificador _ "{" _ dcls:ClassBody* _ "}" { re
 ClassBody = dcl:declaracionVariable _ { return dcl }
           / dcl:declaracionFuncion _ { return dcl }
 
-Parametros = id:Identificador _ params:("," _ ids:Identificador { return ids })* { return [id, ...params] }
+Parametros = param:paramsFunc _ params:("," _ ids:paramsFunc { return ids })* { return [param, ...params] }
+
+paramsFunc = param_:(tipo:("int" / "float" / "string" / "boolean" / "char") _ id:Identificador { return { tipo, id } }) { return param_ }
 
 Stmt = "print(" _ expList:ExpresionListPrint _ ")" _ ";" { return crearNodo('Print', { expList } ) }
      / "System.out.println(" _ expList:ExpresionListPrint _ ")" _ ";" { return crearNodo('Print', { expList } ) }

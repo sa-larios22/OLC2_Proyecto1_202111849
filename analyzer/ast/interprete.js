@@ -452,25 +452,25 @@ export class InterpreterVisitor extends BaseVisitor {
         if (valorVariable === undefined) {
             switch (tipoVariable) {
                 case 'int':
-                    node.exp = { valor: 0, tipo: 'int' };
+                    node.exp = { valor: null, tipo: 'null' };
                     break;
                 case 'float':
-                    node.exp = { valor: 0.0, tipo: 'float' };
+                    node.exp = { valor: null, tipo: 'null' };
                     break;
                 case 'string':
-                    node.exp = { valor: '', tipo: 'string' };
+                    node.exp = { valor: null, tipo: 'null' };
                     break;
                 case 'boolean':
-                    node.exp = { valor: true, tipo: 'boolean' };
+                    node.exp = { valor: null, tipo: 'null' };
                     break;
                 case 'char':
-                    node.exp = { valor: '', tipo: 'char' };
+                    node.exp = { valor: null, tipo: 'null' };
                     break;
                 case 'var':
                     node.exp = { valor: null, tipo: 'null' };
                     break;
                 default:
-                    throw new Error_('Tipo de dato no soportado', node.location.start.line, node.location.start.column, 'Semantico');
+                    throw new Error_('Declaración de Variable: Tipo de dato no soportado', node.location.start.line, node.location.start.column, 'Semantico');
             }
         } else {
 
@@ -542,6 +542,7 @@ export class InterpreterVisitor extends BaseVisitor {
                         throw new Error_('Tipo de dato no soportado', node.location.start.line, node.location.start.column, 'Semantico');
                 }
             }
+            console.log("arreglo_", arreglo);
             this.entornoActual.set(id, { valor: arreglo, tipo: tipoArreglo });
             return;
         }
@@ -559,17 +560,15 @@ export class InterpreterVisitor extends BaseVisitor {
             return;
         }
 
-        exp.forEach(e => {
-            if (e.tipo !== tipoArreglo.slice(0, -2)) {
-                throw new Error_(`Tipo de dato incorrecto en la asignación: el elemento ${e.valor} no es de tipo ${tipoArreglo.slice(0, -2)}`, node.location.start.line, e.location.start.column, 'Semantico');
-            }
-        })
-
         // Declaración con inicialización de valores
-        const arregloValores = exp.map(e => e.accept(this));
+        const arreglo = [];
+        exp.forEach((elemento) => {
+            console.log(elemento.accept(this));
+            arreglo.push(elemento.accept(this));
+        });
+        console.log("arreglo_", arreglo);
 
-        this.entornoActual.set(id, { valor: arregloValores, tipo: tipoArreglo });
-
+        this.entornoActual.set(id, { valor: arreglo, tipo: tipoArreglo });
     }
 
     /**
@@ -591,6 +590,7 @@ export class InterpreterVisitor extends BaseVisitor {
         const index = node.num.accept(this);
 
         const arreglo = this.entornoActual.get(id);
+        console.log("arreglo", arreglo);
 
         if (index.tipo !== 'int') {
             throw new Error_('El índice debe ser de tipo entero', node.location.start.line, node.num.location.start.column, 'Semantico');
@@ -600,7 +600,6 @@ export class InterpreterVisitor extends BaseVisitor {
             throw new Error_(`Índice ${index.valor} fuera de rango, el arreglo '${node.id}' tiene únicamente ${arreglo.valor.length} elementos   `, node.location.start.line, node.num.location.start.column, 'Semantico');
         }
 
-        // console.log(arreglo.valor[index.valor]);
         if (!(arreglo instanceof Array)) {
             return arreglo.valor[index.valor];
         } else {
@@ -749,7 +748,7 @@ export class InterpreterVisitor extends BaseVisitor {
                 return v;
             });
             
-            this.entornoActual.assign(node.id, nuevoArreglo);
+            this.entornoActual.assign(node.id, { valor: nuevoArreglo, tipo: arreglo.tipo });
             return valor;
         }
 
@@ -810,33 +809,39 @@ export class InterpreterVisitor extends BaseVisitor {
 
         let casoEjecutado = false;
 
+        let didBreak = false;
+
         for (const caso of node.caseList) {
-            /**
-             * @type { BaseVisitor['visitCase'] }
-             */
-            const valorCase = caso.cond.accept(this);
 
-            if (expresion.tipo !== valorCase.tipo) {
-                throw new Error_('Los tipos de la expresión y el case no coinciden', node.exp.location.start.line, node.exp.location.start.column, 'Semantico');
+            if (!casoEjecutado) {
+                /**
+                 * @type { BaseVisitor['visitCase'] }
+                 */
+                const valorCase = caso.cond.accept(this);
+
+                if (expresion.tipo !== valorCase.tipo) {
+                    throw new Error_('Los tipos de la expresión y el case no coinciden', node.exp.location.start.line, node.exp.location.start.column, 'Semantico');
+                }
+
+                if (expresion.valor !== valorCase.valor && !casoEjecutado) {
+                    continue;
+                }
             }
-
-            if (expresion.valor === valorCase.valor) {
-                console.log("AAAA")
-                try {
-                    caso.dcls.forEach(dcl => dcl.accept(this));
+        
+            try {
+                caso.dcls.forEach(dcl => dcl.accept(this));
+                casoEjecutado = true;
+            } catch (error) {
+                if (error instanceof BreakException) {
+                    didBreak = true;
                     casoEjecutado = true;
                     break;
-                } catch (error) {
-                    if (error instanceof BreakException) {
-                        casoEjecutado = true;
-                        break;
-                    }
-                    throw error;
                 }
+                throw error;
             }
         }
 
-        if (!casoEjecutado && node.defaultCase) {
+        if (node.defaultCase && (!casoEjecutado || !didBreak)) {
             node.defaultCase.dcls.forEach(dcl => dcl.accept(this));
         }
     }
@@ -845,19 +850,16 @@ export class InterpreterVisitor extends BaseVisitor {
      * @type { BaseVisitor['visitCase']}
      */
     visitCase(node) {
-        /**
-         * @type { BaseVisitor['visitExpresion'] }
-         */
-        const condicionCase = node.cond.accept(this);
+        // /**
+        //  * @type { BaseVisitor['visitExpresion'] }
+        //  */
+        // const condicionCase = node.cond.accept(this);
 
-        if (condicionCase.tipo !== 'boolean') {
-            throw new Error_('La condición no es booleana', node.cond.location.start.line, node.cond.location.start.column, 'Semantico');
-        }
+        // if (condicionCase.tipo !== 'boolean') {
+        //     throw new Error_('La condición no es booleana', node.cond.location.start.line, node.cond.location.start.column, 'Semantico');
+        // }
 
-        if (condicionCase.valor === true) {
-            node.stmt.accept(this);
-            return;
-        }
+        node.stmt.accept(this);
     }
 
     /**
@@ -874,7 +876,7 @@ export class InterpreterVisitor extends BaseVisitor {
         const entornoInicial = this.entornoActual;
 
         try {
-            while(node.cond.accept(this)) {
+            while(node.cond.accept(this).valor) {
                 node.stmt.accept(this);
             }
         } catch (e) {
@@ -926,6 +928,31 @@ export class InterpreterVisitor extends BaseVisitor {
     }
 
     /**
+     * @type { BaseVisitor['visitForEach'] }
+     */
+    visitForEach(node) {
+
+        const arreglo = node.arr.accept(this);
+
+        if (!(arreglo.valor instanceof Array)) {
+            throw new Error_(`'${node.arr.id}' no es un arreglo`, node.arr.location.start.line, node.arr.location.start.column, 'Semantico');
+        }
+
+        if (arreglo.tipo.slice(0, -2) !== node.tipo) {
+            throw new Error_(`El tipo del elemento '${node.id}' (${node.tipo}) no coincide con el tipo del arreglo '${node.arr.id}' (${arreglo.tipo.slice(0, -2)})`, node.location.start.line, node.location.start.column, 'Semantico');
+        }
+
+        const entornoAnterior = this.entornoActual;
+        this.entornoActual = new Entorno(entornoAnterior);
+
+        for (const elemento of arreglo.valor) {
+            this.entornoActual.set(node.id, elemento);
+            node.stmt.accept(this);
+            this.entornoActual.delete(node.id);
+        }
+    }
+
+    /**
      * @type { BaseVisitor['visitBreak'] }
      */
     visitBreak(node) {
@@ -967,7 +994,7 @@ export class InterpreterVisitor extends BaseVisitor {
         }
 
         if (funcion.aridad() !== argumentos.length) {
-            throw new Error_('Aridad incorrecta', node.args[0].location.start.line, node.args[0].location.start.column, 'Semantico');
+            throw new Error_(`'${node.callee.id}' requiere ${funcion.aridad()} argumentos, pero se dieron ${argumentos.length}`, node.args[0].location.start.line, node.args[0].location.start.column, 'Semantico');
         }
 
         return funcion.invocar(this, argumentos);
@@ -1028,15 +1055,17 @@ export class InterpreterVisitor extends BaseVisitor {
     visitInstancia(node) {
         const invocable = this.entornoActual.get(node.id);
 
-        if (!(invocable instanceof Clase)) {
+        if (invocable instanceof Struct) {
+            return invocable.invocar(this, node.args);
+        } else if (!(invocable instanceof Clase)) {
             throw new Error_('No es una clase', node.location.start.line, node.location.start.column, 'Semantico');
         }
 
-        // if (!(invocable instanceof Struct)) {
-        //     throw new Error_('No es una estructura', node.location.start.line, node.location.start.column, 'Semantico');
-        // }
-
-        return invocable.invocar(this, node.args);
+        if (invocable instanceof Clase) {
+            return invocable.invocar(this, node.args);
+        } else if (!(invocable instanceof Struct)) {
+            throw new Error_('No es una estructura', node.location.start.line, node.location.start.column, 'Semantico');
+        }
     }
 
     /**

@@ -380,6 +380,36 @@ const configuracionNodos = [
             }
         ]
     },
+    // ForEach
+    // "for" _ "(" _ tipo:("int" / "float" / "string" / "boolean" / "char") _ id:Identificador _ ":" _ arr:Expresion _ ")" _ stmt:Stmt {
+    //     return crearNodo('ForEach', { tipo, id, arr, stmt })
+    // }
+    {
+        name: 'ForEach',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de la variable del ciclo for'
+            },
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la variable del ciclo for'
+            },
+            {
+                name: 'arr',
+                type: 'Expresion',
+                description: 'Arreglo a recorrer'
+            },
+            {
+                name: 'stmt',
+                type: 'Expresion',
+                description: 'Cuerpo del for'
+            }
+        ]
+    },
     // Break
     // "break" _ ";" { return crearNodo('Break') }
     {
@@ -425,11 +455,24 @@ const configuracionNodos = [
         ]
     },
     // Declaración de Función
-    // declaracionFuncion = "function" _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('declaracionFuncion', { id, params: params || [], bloque })}
+    // declaracionFuncion = tipoFunc:("int" / "float"/  "string" / "boolean" / "char" / "void")  _ dims:("[]")+ _ id:Identificador _ "(" _ params:Parametros? _ ")" _ bloque:Bloque { return crearNodo('DeclaracionFuncion', { tipo, dims, id, params: params || [], bloque })}
+    // Parametros = param:paramsFunc _ params:("," _ ids:paramsFunc { return ids })* { return [id, ...params] }
+    // paramsFunc = param_:(tipo:("int" / "float" / "string" / "boolean" / "char") _ id:Identificador { return { tipo, id } }) { return param_ }
+
     {
         name: 'DeclaracionFuncion',
         extends: 'Expresion',
         props: [
+            {
+                name: 'tipoFunc',
+                type: 'string',
+                description: 'Tipo de la funcion'
+            },
+            {
+                name: 'dims',
+                type: 'string',
+                description: 'Dimensiones de la funcion'
+            },
             {
                 name: 'id',
                 type: 'string',
@@ -437,12 +480,12 @@ const configuracionNodos = [
             },
             {
                 name: 'params',
-                type: 'string[]',
+                type: 'Expresion[]',
                 description: 'Parametros de la funcion'
             },
             {
                 name: 'bloque',
-                type: 'Bloque',
+                type: 'Expresion',
                 description: 'Cuerpo de la funcion'
             }
         ]

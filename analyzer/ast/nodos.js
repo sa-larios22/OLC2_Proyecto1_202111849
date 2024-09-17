@@ -651,6 +651,55 @@ export class For extends Expresion {
     }
 }
     
+export class ForEach extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de la variable del ciclo for
+ * @param {string} options.id Identificador de la variable del ciclo for
+ * @param {Expresion} options.arr Arreglo a recorrer
+ * @param {Expresion} options.stmt Cuerpo del for
+    */
+    constructor({ tipo, id, arr, stmt }) {
+        super();
+        
+        /**
+         * Tipo de la variable del ciclo for
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador de la variable del ciclo for
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Arreglo a recorrer
+         * @type {Expresion}
+        */
+        this.arr = arr;
+
+
+        /**
+         * Cuerpo del for
+         * @type {Expresion}
+        */
+        this.stmt = stmt;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitForEach(this);
+    }
+}
+    
 export class Break extends Expresion {
 
     /**
@@ -751,13 +800,29 @@ export class DeclaracionFuncion extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {string} options.id Identificador de la funcion
- * @param {string[]} options.params Parametros de la funcion
- * @param {Bloque} options.bloque Cuerpo de la funcion
+    * @param {string} options.tipoFunc Tipo de la funcion
+ * @param {string} options.dims Dimensiones de la funcion
+ * @param {string} options.id Identificador de la funcion
+ * @param {Expresion[]} options.params Parametros de la funcion
+ * @param {Expresion} options.bloque Cuerpo de la funcion
     */
-    constructor({ id, params, bloque }) {
+    constructor({ tipoFunc, dims, id, params, bloque }) {
         super();
         
+        /**
+         * Tipo de la funcion
+         * @type {string}
+        */
+        this.tipoFunc = tipoFunc;
+
+
+        /**
+         * Dimensiones de la funcion
+         * @type {string}
+        */
+        this.dims = dims;
+
+
         /**
          * Identificador de la funcion
          * @type {string}
@@ -767,14 +832,14 @@ export class DeclaracionFuncion extends Expresion {
 
         /**
          * Parametros de la funcion
-         * @type {string[]}
+         * @type {Expresion[]}
         */
         this.params = params;
 
 
         /**
          * Cuerpo de la funcion
-         * @type {Bloque}
+         * @type {Expresion}
         */
         this.bloque = bloque;
 
@@ -994,4 +1059,4 @@ export class FuncionEmbedida extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionStruct, DeclaracionClase, Instancia, Get, FuncArray, FuncionEmbedida }
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionStruct, DeclaracionClase, Instancia, Get, FuncArray, FuncionEmbedida }

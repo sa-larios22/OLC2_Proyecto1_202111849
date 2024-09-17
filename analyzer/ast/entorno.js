@@ -15,13 +15,12 @@ export class Entorno {
      * @param {any} valor
      */
     set(nombre, valor) {
-            if (this.valores.hasOwnProperty(nombre)) {
-                throw new Error_(`El valor ${nombre} ya ha sido asignado en este entorno`, 0, 0, 'Semántico');
-            }
-    
-            this.valores[nombre] = valor;
-            // console.log('post-set', this.valores);
+        if (this.valores.hasOwnProperty(nombre)) {
+            throw new Error_(`El valor ${nombre} ya ha sido asignado en este entorno`, 0, 0, 'Semántico');
         }
+
+        this.valores[nombre] = valor;
+    }
 
     /**
      * @param {string} nombre
@@ -52,5 +51,19 @@ export class Entorno {
         }
 
         throw new Error_(`No se pudo asignar un nuevo valor a ${nombre}, la variable no ha sido declarada`, 0, 0, 'Semántico');
+    }
+
+    delete(nombre) {
+        if (this.valores.hasOwnProperty(nombre)) {
+            delete this.valores[nombre];
+            return;
+        }
+
+        if (!this.valores.hasOwnProperty(nombre) && this.padre) {
+            this.padre.delete(nombre);
+            return;
+        }
+
+        throw new Error_(`No se pudo eliminar ${nombre}, la variable no ha sido declarada`, 0, 0, 'Semántico');
     }
 }
