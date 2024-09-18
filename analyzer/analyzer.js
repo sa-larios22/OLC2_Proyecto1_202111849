@@ -3,6 +3,7 @@
 // https://peggyjs.org/
 
 import nodos from "./ast/nodos.js";
+import { Error_ } from "./errors/error_.js";
 
 
 function peg$subclass(child, parent) {
@@ -400,8 +401,7 @@ function peg$parse(input, options) {
   var peg$f47 = function(dcls) { return crearNodo('DefaultCase', { dcls }) };
   var peg$f48 = function() { return text() };
   var peg$f49 = function(id, index, asgn) { return crearNodo('Asignacion', { id, index, asgn }) };
-  var peg$f50 = function(id, asgn) { return crearNodo('Asignacion', { id, asgn }) };
-  var peg$f51 = function(id, asgn) {
+  var peg$f50 = function(id, asgn) {
                return crearNodo('Asignacion', {
                     id,
                     asgn: crearNodo('Binaria', {
@@ -411,7 +411,7 @@ function peg$parse(input, options) {
                     })
                })
           };
-  var peg$f52 = function(id, asgn) { 
+  var peg$f51 = function(id, asgn) { 
                return crearNodo('Asignacion', {
                     id,
                     asgn: crearNodo('Binaria', {
@@ -420,6 +420,23 @@ function peg$parse(input, options) {
                          der: asgn
                     })
                })
+          };
+  var peg$f52 = function(asignado, asgn) {
+
+               if (asignado instanceof nodos.ReferenciaVariable) {
+                    return crearNodo('Asignacion', { id: asignado.id, asgn });
+               }
+               
+               if (asignado instanceof nodos.ReferenciaArray) {
+                    return crearNodo('Asignacion', { id: asignado.id, index: asignado.num, asgn });
+               }
+
+               if (!(asignado instanceof nodos.Get)) {
+                    throw new Error_(`Solo se pueden asignar valores a propiedades de objetos`, location.start.line, location.start.column, 'Semantico');
+               }
+
+               return crearNodo('Set', { objetivo: asignado.objetivo, propiedad: asignado.propiedad, valor:asgn });
+
           };
   var peg$f53 = function(izq, der) { return { tipo: '||', der } };
   var peg$f54 = function(izq, expansion) {
@@ -1713,49 +1730,7 @@ function peg$parse(input, options) {
     var s0, s1, s2, s3, s4, s5, s6;
 
     s0 = peg$currPos;
-    if (input.substr(peg$currPos, 3) === peg$c0) {
-      s1 = peg$c0;
-      peg$currPos += 3;
-    } else {
-      s1 = peg$FAILED;
-      if (peg$silentFails === 0) { peg$fail(peg$e0); }
-    }
-    if (s1 === peg$FAILED) {
-      if (input.substr(peg$currPos, 5) === peg$c1) {
-        s1 = peg$c1;
-        peg$currPos += 5;
-      } else {
-        s1 = peg$FAILED;
-        if (peg$silentFails === 0) { peg$fail(peg$e1); }
-      }
-      if (s1 === peg$FAILED) {
-        if (input.substr(peg$currPos, 6) === peg$c2) {
-          s1 = peg$c2;
-          peg$currPos += 6;
-        } else {
-          s1 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$e2); }
-        }
-        if (s1 === peg$FAILED) {
-          if (input.substr(peg$currPos, 7) === peg$c3) {
-            s1 = peg$c3;
-            peg$currPos += 7;
-          } else {
-            s1 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$e3); }
-          }
-          if (s1 === peg$FAILED) {
-            if (input.substr(peg$currPos, 4) === peg$c4) {
-              s1 = peg$c4;
-              peg$currPos += 4;
-            } else {
-              s1 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$e4); }
-            }
-          }
-        }
-      }
-    }
+    s1 = peg$parseTipo();
     if (s1 !== peg$FAILED) {
       s2 = peg$parse_();
       s3 = peg$parseIdentificador();
@@ -3086,12 +3061,12 @@ function peg$parse(input, options) {
       s1 = peg$parseIdentificador();
       if (s1 !== peg$FAILED) {
         s2 = peg$parse_();
-        if (input.charCodeAt(peg$currPos) === 61) {
-          s3 = peg$c6;
-          peg$currPos++;
+        if (input.substr(peg$currPos, 2) === peg$c38) {
+          s3 = peg$c38;
+          peg$currPos += 2;
         } else {
           s3 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$e6); }
+          if (peg$silentFails === 0) { peg$fail(peg$e40); }
         }
         if (s3 !== peg$FAILED) {
           s4 = peg$parse_();
@@ -3116,12 +3091,12 @@ function peg$parse(input, options) {
         s1 = peg$parseIdentificador();
         if (s1 !== peg$FAILED) {
           s2 = peg$parse_();
-          if (input.substr(peg$currPos, 2) === peg$c38) {
-            s3 = peg$c38;
+          if (input.substr(peg$currPos, 2) === peg$c39) {
+            s3 = peg$c39;
             peg$currPos += 2;
           } else {
             s3 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$e40); }
+            if (peg$silentFails === 0) { peg$fail(peg$e41); }
           }
           if (s3 !== peg$FAILED) {
             s4 = peg$parse_();
@@ -3143,15 +3118,15 @@ function peg$parse(input, options) {
         }
         if (s0 === peg$FAILED) {
           s0 = peg$currPos;
-          s1 = peg$parseIdentificador();
+          s1 = peg$parseLlamada();
           if (s1 !== peg$FAILED) {
             s2 = peg$parse_();
-            if (input.substr(peg$currPos, 2) === peg$c39) {
-              s3 = peg$c39;
-              peg$currPos += 2;
+            if (input.charCodeAt(peg$currPos) === 61) {
+              s3 = peg$c6;
+              peg$currPos++;
             } else {
               s3 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$e41); }
+              if (peg$silentFails === 0) { peg$fail(peg$e6); }
             }
             if (s3 !== peg$FAILED) {
               s4 = peg$parse_();
@@ -5265,6 +5240,7 @@ function peg$parse(input, options) {
                'DeclaracionClase': nodos.DeclaracionClase,
                'Instancia': nodos.Instancia,
                'Get': nodos.Get,
+               'Set': nodos.Set,
                'FuncArray': nodos.FuncArray,
                'FuncionEmbedida': nodos.FuncionEmbedida
           }

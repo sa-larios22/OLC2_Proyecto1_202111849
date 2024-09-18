@@ -1,4 +1,6 @@
 import { Error_ } from "../errors/error_.js";
+import { Simbolo } from "./simbolo.js";
+import { listaSimbolos } from "../../js/index.js";
 
 export class Entorno {
 
@@ -20,6 +22,9 @@ export class Entorno {
         }
 
         this.valores[nombre] = valor;
+
+        // const simbolo = new Simbolo(nombre, 'variable', typeof valor, 0, 0);
+        // listaSimbolos.push(simbolo);
     }
 
     /**

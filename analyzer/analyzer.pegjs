@@ -30,6 +30,7 @@
                'DeclaracionClase': nodos.DeclaracionClase,
                'Instancia': nodos.Instancia,
                'Get': nodos.Get,
+               'Set': nodos.Set,
                'FuncArray': nodos.FuncArray,
                'FuncionEmbedida': nodos.FuncionEmbedida
           }
@@ -69,7 +70,7 @@ declaracionFuncion = tipoFunc:("int" / "float"/  "string" / "boolean" / "char" /
 
 declaracionStruct = "struct" _ id:Identificador _ "{" _ atbs:Atributos* _ "}" _ ";" { return crearNodo('DeclaracionStruct', { id, atbs }) }
 
-Atributos = tipo:("int" / "float" / "string" / "boolean" / "char") _ id:Identificador _ ";" _ { return { tipo, id } }
+Atributos = tipo:Tipo _ id:Identificador _ ";" _ { return { tipo, id } }
 
 declaracionClase = "class" _ id:Identificador _ "{" _ dcls:ClassBody* _ "}" { return crearNodo('DeclaracionClase', { id, dcls }) }
 
@@ -122,7 +123,6 @@ Identificador = [a-zA-Z][a-zA-Z0-9]* { return text() }
 Expresion = Asignacion
 
 Asignacion = id:Identificador "[" _ index:Numero _ "]" _ "=" _ asgn:Expresion { return crearNodo('Asignacion', { id, index, asgn }) }
-          / id:Identificador _ "=" _ asgn:Expresion { return crearNodo('Asignacion', { id, asgn }) }
           / id:Identificador _ "+=" _ asgn:Expresion {
                return crearNodo('Asignacion', {
                     id,
@@ -142,6 +142,23 @@ Asignacion = id:Identificador "[" _ index:Numero _ "]" _ "=" _ asgn:Expresion { 
                          der: asgn
                     })
                })
+          }
+          / asignado:Llamada _ "=" _ asgn:Asignacion {
+
+               if (asignado instanceof nodos.ReferenciaVariable) {
+                    return crearNodo('Asignacion', { id: asignado.id, asgn });
+               }
+               
+               if (asignado instanceof nodos.ReferenciaArray) {
+                    return crearNodo('Asignacion', { id: asignado.id, index: asignado.num, asgn });
+               }
+
+               if (!(asignado instanceof nodos.Get)) {
+                    throw new Error_(`Solo se pueden asignar valores a propiedades de objetos`, location.start.line, location.start.column, 'Semantico');
+               }
+
+               return crearNodo('Set', { objetivo: asignado.objetivo, propiedad: asignado.propiedad, valor:asgn });
+
           }
           / OrLogico
 

@@ -563,6 +563,29 @@ const configuracionNodos = [
             }
         ]
     },
+    // Set
+    // asignado:llamada _ = _ asgn:Asignacion
+    {
+        name: 'Set',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'objetivo',
+                type: 'Expresion',
+                description: 'Objeto de la propiedad'
+            },
+            {
+                name: 'propiedad',
+                type: 'string',
+                description: 'Identificador de la propiedad'
+            },
+            {
+                name: 'valor',
+                type: 'Expresion',
+                description: 'Valor de la propiedad'
+            }
+        ]
+    },
     // FuncArray
     // (".indexOf(" _ expIndex:Expresion _ ")" { return { expIndex, tipo:'indexOf' } }) /
     //     (".join()" { return { tipo:'join' } }) /

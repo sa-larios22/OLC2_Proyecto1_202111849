@@ -36,8 +36,18 @@ export class Struct extends Invocable {
             }
 
             const valorFinal = valor.exp.accept(interprete);
+
+            if (valorFinal instanceof Instancia) {
+                if (valorFinal.clase.nombre !== tipo) {
+                    throw new Error(`El valor para la propiedad ${nombre} no es del tipo esperado 1`);
+                }
+
+                nuevaInstancia.set(nombre, valorFinal);
+                return;
+            }
+
             if (valorFinal.tipo !== tipo) {
-                throw new Error(`El valor para la propiedad ${nombre} no es del tipo esperado`);
+                throw new Error(`El valor para la propiedad ${nombre} no es del tipo esperado 2`);
             }
 
             nuevaInstancia.set(nombre, valorFinal);

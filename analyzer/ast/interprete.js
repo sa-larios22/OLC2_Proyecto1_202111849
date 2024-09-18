@@ -9,6 +9,8 @@ import { Error_ } from '../errors/error_.js';
 import { Clase } from '../instructions/clase.js';
 import { Instancia } from '../instructions/instancia.js';
 import { Struct } from '../instructions/struct.js';
+import { Simbolo } from './simbolo.js';
+import { listaSimbolos } from "../../js/index.js";
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -447,7 +449,7 @@ export class InterpreterVisitor extends BaseVisitor {
          */
         const valorVariable = node.exp ? node.exp.accept(this) : undefined;
 
-        // En caso de que sea la regla
+        // Declaración de variable sin valor
         // tipo:("int" / "float" / "string" / "boolean" / "char" / "var") _ id:Identificador _ ";" { return crearNodo('DeclaracionVariable', { tipo, id }) }
         if (valorVariable === undefined) {
             switch (tipoVariable) {
@@ -492,6 +494,10 @@ export class InterpreterVisitor extends BaseVisitor {
                 }
 
                 this.entornoActual.set(nombreVariable, valorVariable);
+
+                // Registrar el símbolo en listaSimbolos
+                const simbolo = new Simbolo(nombreVariable, 'variable', node.tipo, node.location.start.line, node.location.start.column);
+                listaSimbolos.push(simbolo);
                 return;
             }
                 
@@ -503,10 +509,18 @@ export class InterpreterVisitor extends BaseVisitor {
             }
 
             this.entornoActual.set(nombreVariable, valorVariable);
+
+            // Registrar el símbolo en listaSimbolos
+            const simbolo = new Simbolo(nombreVariable, 'variable', tipoVariable, node.location.start.line, node.location.start.column);
+            listaSimbolos.push(simbolo);
             return;
         }
 
         this.entornoActual.set(nombreVariable, node.exp);
+
+        // Registrar el símbolo en listaSimbolos
+        const simbolo = new Simbolo(nombreVariable, 'variable', tipoVariable, node.location.start.line, node.location.start.column);
+        listaSimbolos.push(simbolo);
     }
 
     /**
@@ -542,8 +556,11 @@ export class InterpreterVisitor extends BaseVisitor {
                         throw new Error_('Tipo de dato no soportado', node.location.start.line, node.location.start.column, 'Semantico');
                 }
             }
-            console.log("arreglo_", arreglo);
+
             this.entornoActual.set(id, { valor: arreglo, tipo: tipoArreglo });
+            // Registrar el símbolo en listaSimbolos
+            const simbolo = new Simbolo(id, 'arreglo', tipoArreglo, node.location.start.line, node.location.start.column);
+            listaSimbolos.push(simbolo);
             return;
         }
 
@@ -557,6 +574,10 @@ export class InterpreterVisitor extends BaseVisitor {
 
             this.entornoActual.set(id, referencia);
         
+            // Registrar el símbolo en listaSimbolos
+            const simbolo = new Simbolo(id, 'arreglo', tipoArreglo, node.location.start.line, node.location.start.column);
+            listaSimbolos.push(simbolo);
+
             return;
         }
 
@@ -569,6 +590,10 @@ export class InterpreterVisitor extends BaseVisitor {
         console.log("arreglo_", arreglo);
 
         this.entornoActual.set(id, { valor: arreglo, tipo: tipoArreglo });
+
+        // Registrar el símbolo en listaSimbolos
+        const simbolo = new Simbolo(id, 'arreglo', tipoArreglo, node.location.start.line, node.location.start.column);
+        listaSimbolos.push(simbolo);
     }
 
     /**
@@ -651,7 +676,7 @@ export class InterpreterVisitor extends BaseVisitor {
             }
 
             if (valor.tipo === 'float') {
-                this.salida += valor.valor.toFixed(4) + '\n';
+                this.salida += valor.valor.toFixed(4);
                 return;
             }
 
@@ -660,7 +685,7 @@ export class InterpreterVisitor extends BaseVisitor {
                 valor.valor.forEach((v) => {
                     arrayPrint.push(v.valor)
                 })
-                this.salida += arrayPrint + '\n';
+                this.salida += arrayPrint;
                 return;
             }
 
@@ -1006,6 +1031,10 @@ export class InterpreterVisitor extends BaseVisitor {
     visitDeclaracionFuncion(node) {
         const funcion = new FuncionForanea(node, this.entornoActual);
         this.entornoActual.set(node.id, funcion);
+
+        // Registrar el símbolo en listaSimbolos
+        const simbolo = new Simbolo(nombreFuncion, tipoFuncion, 'función', node.location.start.line, node.location.start.column);
+        listaSimbolos.push(simbolo);
     }
 
     /**
@@ -1082,5 +1111,25 @@ export class InterpreterVisitor extends BaseVisitor {
         }
 
         return instancia.get(node.propiedad);
+    }
+    
+    /**
+     * @type { BaseVisitor['visitSet'] }
+     */
+    visitSet(node) {
+        /**
+         * @type { Instancia}
+         */
+        const instancia = node.objetivo.accept(this);
+
+        if (!(instancia instanceof Instancia)) {
+            throw new Error_('No es una instancia', node.location.start.line, node.location.start.column, 'Semantico');
+        }
+
+        const valor = node.valor.accept(this);
+
+        instancia.set(node.propiedad, valor);
+
+        return valor;
     }
 }

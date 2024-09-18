@@ -985,6 +985,47 @@ export class Get extends Expresion {
     }
 }
     
+export class Set extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.objetivo Objeto de la propiedad
+ * @param {string} options.propiedad Identificador de la propiedad
+ * @param {Expresion} options.valor Valor de la propiedad
+    */
+    constructor({ objetivo, propiedad, valor }) {
+        super();
+        
+        /**
+         * Objeto de la propiedad
+         * @type {Expresion}
+        */
+        this.objetivo = objetivo;
+
+
+        /**
+         * Identificador de la propiedad
+         * @type {string}
+        */
+        this.propiedad = propiedad;
+
+
+        /**
+         * Valor de la propiedad
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitSet(this);
+    }
+}
+    
 export class FuncArray extends Expresion {
 
     /**
@@ -1059,4 +1100,4 @@ export class FuncionEmbedida extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionStruct, DeclaracionClase, Instancia, Get, FuncArray, FuncionEmbedida }
+export default { Expresion, OperacionBinaria, OperacionUnaria, Parentesis, Primitivo, DeclaracionVariable, DeclaracionArray, ReferenciaVariable, ReferenciaArray, Print, ExpresionStatement, Asignacion, Bloque, If, Switch, Case, DefaultCase, While, For, ForEach, Break, Continue, Return, Llamada, DeclaracionFuncion, DeclaracionStruct, DeclaracionClase, Instancia, Get, Set, FuncArray, FuncionEmbedida }

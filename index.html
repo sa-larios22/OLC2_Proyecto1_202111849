@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>OakLand</title>
-        <link rel="stylesheet" href="./styles/style.css">
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OakLand Editor</title>
+    <link rel="stylesheet" href="./styles/style.css">
+</head>
+<body>
+    <div id="sidebar" class="sidebar">
+        <button class="sidebar-btn" id="btnInterpretar">Ejecutar</button>
+        <div class="dropdown">
+            <button class="sidebar-btn" id="btnArchivo">Archivo</button>
+            <div class="dropdown-content">
+                <button id="btnAbrirArchivo">Abrir Archivo</button>
+                <button id="btnGuardarArchivo">Guardar Archivo</button>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="sidebar-btn" id="btnReportes">Reportes</button>
+            <div class="dropdown-content">
+                <button id="btnTablaErrores">Tabla de Errores</button>
+                <button id="btnTablaSimbolos">Tabla de Símbolos</button>
+            </div>
+        </div>
+    </div>
+    <div id="main">
         <div id="root">
             <div class="app-container">
-                
                 <div>
                     <h1>OakLand</h1>
                 </div>
@@ -19,15 +36,11 @@
                     <br>
                     <h2>Consola</h2>
                     <textarea id="consoleTextArea" readonly></textarea>
-                    <div>
-                        <button id="btnInterpretar">
-                            <span class="button_top">Interpretar</span>
-                        </button>
-                    </div>
-                    <pre id="ast"></pre>
                 </div>
             </div>
         </div>
-        <script type="module" src="./js/index.js"></script>
-    </body>
+    </div>
+    <script type="module" src="./js/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</body>
 </html>
