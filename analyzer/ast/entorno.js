@@ -23,7 +23,7 @@ export class Entorno {
 
         this.valores[nombre] = valor;
 
-        // const simbolo = new Simbolo(nombre, 'variable', typeof valor, 0, 0);
+        // const simbolo = new Simbolo(nombre, 'variable', valor.valor, 0, 0);
         // listaSimbolos.push(simbolo);
     }
 

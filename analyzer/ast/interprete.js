@@ -1033,7 +1033,7 @@ export class InterpreterVisitor extends BaseVisitor {
         this.entornoActual.set(node.id, funcion);
 
         // Registrar el símbolo en listaSimbolos
-        const simbolo = new Simbolo(nombreFuncion, tipoFuncion, 'función', node.location.start.line, node.location.start.column);
+        const simbolo = new Simbolo(node.id, node.tipoFunc, 'función', node.location.start.line, node.location.start.column);
         listaSimbolos.push(simbolo);
     }
 

@@ -3,6 +3,8 @@ import { DeclaracionFuncion } from "../ast/nodos.js";
 import { Entorno } from "../ast/entorno.js";
 import { ReturnException } from "./transferSentences.js";
 import { Error_ } from "../errors/error_.js";
+import { Simbolo } from "../ast/simbolo.js";
+import { listaSimbolos } from "../../js/index.js";
 
 export class FuncionForanea extends Invocable {
     constructor(nodo, clousure) {
@@ -44,6 +46,10 @@ export class FuncionForanea extends Invocable {
         const entornoNuevo = new Entorno(this.clousure);
 
         this.nodo.params.forEach((param, index) => {
+
+            const simbolo = new Simbolo(param.id, 'variable', args[index].tipo, this.nodo.location.start.line, this.nodo.location.start.column);
+            listaSimbolos.push(simbolo);
+
             entornoNuevo.set(param.id, { valor: args[index].valor, tipo: args[index].tipo });
         });
 
